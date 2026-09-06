@@ -1,20 +1,24 @@
 import { type ReactNode, useRef, useEffect } from 'react'
-import { Copy, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
+import { Copy, Trash2, ChevronUp, ChevronDown, GripVertical } from 'lucide-react'
+import { useDraggable } from '@dnd-kit/core'
 import { toast } from 'sonner'
 import { useConfigStore } from '@/store/configStore'
 import { regionBlocks, regionOfBlock } from '@/store/site-shape'
 import { useEditorStore } from '@/store/editorStore'
 import { useScrollReveal } from '@/lib/useScrollReveal'
-import type { BlockConfig } from './types'
+import type { BlockConfig, SiteRegion } from './types'
 
 interface Props {
   block: BlockConfig
+  /** Position within its region, needed when the section is dragged. */
+  index: number
+  region: SiteRegion
   isSelected: boolean
   onSelect: () => void
   children: ReactNode
 }
 
-export function BlockWrapper({ block, isSelected, onSelect, children }: Props) {
+export function BlockWrapper({ block, index, region, isSelected, onSelect, children }: Props) {
   // The up/down controls need to know how long the list this block sits in is,
   // and that list may be the header, the page or the footer.
   const blocks = useConfigStore((s) =>
@@ -26,7 +30,13 @@ export function BlockWrapper({ block, isSelected, onSelect, children }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { ref: revealRef, isRevealed } = useScrollReveal(!previewMode)
 
-  const index = blocks.findIndex((b) => b.id === block.id)
+  // Only the handle starts a drag, so clicking anywhere on a section still
+  // selects it and text inside stays selectable.
+  const { attributes, listeners, setActivatorNodeRef, isDragging } = useDraggable({
+    id: `section-${block.id}`,
+    data: { kind: 'move', id: block.id, region, index },
+  })
+
   const isFirst = index === 0
   const isLast = index === blocks.length - 1
 
@@ -74,7 +84,10 @@ export function BlockWrapper({ block, isSelected, onSelect, children }: Props) {
           onSelect()
         }
       }}
-      style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+      style={{
+        transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        opacity: isDragging ? 0.4 : undefined,
+      }}
     >
       {/* Block type tag */}
       <span
@@ -91,6 +104,17 @@ export function BlockWrapper({ block, isSelected, onSelect, children }: Props) {
           isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}
       >
+        <button
+          ref={setActivatorNodeRef}
+          {...listeners}
+          {...attributes}
+          onClick={(e) => e.stopPropagation()}
+          className="w-6 h-6 rounded bg-bg-2/80 border border-border-default backdrop-blur-sm flex items-center justify-center text-text-3 hover:text-text-0 hover:bg-bg-3 transition-colors cursor-grab active:cursor-grabbing"
+          title="Drag to move"
+          aria-label={`Drag ${block.type} section to move it`}
+        >
+          <GripVertical size={12} />
+        </button>
         {!isFirst && (
           <button
             onClick={(e) => { e.stopPropagation(); moveBlock(index, index - 1) }}

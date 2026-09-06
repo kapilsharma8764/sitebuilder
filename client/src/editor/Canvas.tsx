@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
+import { useDndMonitor } from '@dnd-kit/core'
+import { useState } from 'react'
 import { useConfigStore } from '@/store/configStore'
 import type { SiteRegion } from '@/blocks/types'
+import { DropGap } from '@/builder/DropGap'
 import { useEditorStore } from '@/store/editorStore'
 import { CanvasEmpty } from './CanvasEmpty'
 import { BlockWrapper } from '@/blocks/BlockWrapper'
@@ -54,6 +57,14 @@ export function Canvas() {
   const theme = useConfigStore((s) => s.config.theme)
   const { selectedBlockId, selectBlock, viewport } = useEditorStore()
 
+  // Drop gaps only take up space while something is actually being dragged.
+  const [dragging, setDragging] = useState(false)
+  useDndMonitor({
+    onDragStart: () => setDragging(true),
+    onDragEnd: () => setDragging(false),
+    onDragCancel: () => setDragging(false),
+  })
+
   const resolved = useMemo(() => resolveTheme(theme), [theme])
   const cssVars = useMemo(() => themeToCSS(resolved), [resolved])
   useGoogleFonts([resolved.fontSans, resolved.fontDisplay, resolved.fontMono])
@@ -67,20 +78,30 @@ export function Canvas() {
 
   // Selecting a block also switches the active region, so the next widget you
   // add lands beside the one you just clicked rather than on the page below.
-  const renderRegion = (list: typeof blocks, region: SiteRegion) =>
-    list.map((block) => (
-      <BlockWrapper
-        key={block.id}
-        block={block}
-        isSelected={selectedBlockId === block.id}
-        onSelect={() => {
-          selectBlock(block.id)
-          setActiveRegion(region)
-        }}
-      >
-        <RenderBlock block={block} />
-      </BlockWrapper>
-    ))
+  const renderRegion = (list: typeof blocks, region: SiteRegion) => (
+    <>
+      {list.map((block, index) => (
+        <div key={block.id}>
+          <DropGap region={region} index={index} active={dragging} />
+          <BlockWrapper
+            block={block}
+            index={index}
+            region={region}
+            isSelected={selectedBlockId === block.id}
+            onSelect={() => {
+              selectBlock(block.id)
+              setActiveRegion(region)
+            }}
+          >
+            <RenderBlock block={block} />
+          </BlockWrapper>
+        </div>
+      ))}
+      {/* The gap after the last section, so something can be dropped at the
+          end of a region. */}
+      <DropGap region={region} index={list.length} active={dragging} />
+    </>
+  )
 
   const canvasContent = (
     <div

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Search, Layout, Type, Grid3X3, DollarSign, Megaphone, PanelBottom, MessageSquare, BarChart3, HelpCircle, Users, Mail, Newspaper, Image, Plus, Minus, Flag, FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle, PieChart } from 'lucide-react'
+import { useDraggable } from '@dnd-kit/core'
 import { LayersPanel } from './LayersPanel'
 import { PagesPanel } from '@/builder/PagesPanel'
 import { useConfigStore } from '@/store/configStore'
@@ -16,6 +17,46 @@ const blockIcons: Record<BlockType, typeof Layout> = {
   newsletter: Newspaper, logocloud: Image, divider: Minus, banner: Flag,
   content: FileText, image: ImageIcon, video: Play, gallery: GalleryHorizontalEnd,
   map: MapPin, whatsapp: MessageCircle, chart: PieChart,
+}
+
+/**
+ * One widget in the library.
+ *
+ * Draggable onto the page, and clickable for anyone who would rather not drag
+ * — on a laptop trackpad, dragging across the screen is real work.
+ */
+function WidgetItem({
+  meta,
+  icon: Icon,
+  onAdd,
+}: {
+  meta: (typeof blockMetadata)[number]
+  icon: typeof Layout
+  onAdd: () => void
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `widget-${meta.type}`,
+    data: { kind: 'new', type: meta.type },
+  })
+
+  return (
+    <button
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      onClick={onAdd}
+      title={meta.description}
+      className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] text-text-1 hover:bg-bg-3 hover:text-text-0 transition-colors text-left group cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-40' : ''
+      }`}
+    >
+      <div className="w-[22px] h-[22px] rounded border border-border-default bg-bg-3 flex items-center justify-center text-[10px] shrink-0">
+        <Icon size={12} />
+      </div>
+      <span className="flex-1">{meta.label}</span>
+      <Plus size={11} className="text-text-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+    </button>
+  )
 }
 
 function ComponentsPanel() {
@@ -70,27 +111,19 @@ function ComponentsPanel() {
             <div className="text-[9px] font-semibold uppercase tracking-wider text-text-3 px-1.5 pt-2.5 pb-1">
               {category}
             </div>
-            {items.map((meta) => {
-              const Icon = blockIcons[meta.type] || Layout
-              return (
-                <button
-                  key={meta.type}
-                  onClick={() => handleAdd(meta.type)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] text-text-1 hover:bg-bg-3 hover:text-text-0 transition-colors text-left group"
-                >
-                  <div className="w-[22px] h-[22px] rounded border border-border-default bg-bg-3 flex items-center justify-center text-[10px] shrink-0">
-                    <Icon size={12} />
-                  </div>
-                  <span className="flex-1">{meta.label}</span>
-                  <Plus size={11} className="text-text-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-              )
-            })}
+            {items.map((meta) => (
+              <WidgetItem
+                key={meta.type}
+                meta={meta}
+                icon={blockIcons[meta.type] || Layout}
+                onAdd={() => handleAdd(meta.type)}
+              />
+            ))}
           </div>
         ))}
         {filtered.length === 0 && (
           <div className="px-2 py-6 text-center text-[11px] text-text-3">
-            No components match "{search}"
+            No widget matches “{search}”
           </div>
         )}
       </div>
