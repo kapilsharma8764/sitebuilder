@@ -77,6 +77,26 @@ function propsFor(section: Section, pack: ContentPack): Record<string, unknown> 
     case 'contact':
       return { title: pack.contactTitle, subtitle: pack.contactSubtitle }
 
+    case 'map':
+      return {
+        title: 'Find us',
+        address: '',
+        mapUrl: '',
+        timing: '',
+        height: 360,
+      }
+
+    case 'whatsapp':
+      // Filled in from the Create Website form; empty here so a template never
+      // publishes a stranger's phone number.
+      return {
+        number: '',
+        countryCode: '91',
+        label: 'Chat with us',
+        message: `Hello ${pack.name}, I would like to know more.`,
+        side: 'right',
+      }
+
     case 'banner':
       return { text: pack.slogan, linkText: pack.secondaryCta, linkUrl: '#' }
 

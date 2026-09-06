@@ -25,6 +25,8 @@ export interface Section {
     | 'faq'
     | 'cta'
     | 'contact'
+    | 'map'
+    | 'whatsapp'
     | 'footer'
     | 'banner'
 }
@@ -63,6 +65,7 @@ export const arrangements: Arrangement[] = [
       { type: 'testimonials', variant: 'spotlight', role: 'reviews' },
       { type: 'contact', variant: 'form', role: 'contact' },
       { type: 'footer', variant: 'multi-column', role: 'footer' },
+      { type: 'whatsapp', variant: 'floating', role: 'whatsapp' },
     ],
   },
   {
@@ -77,7 +80,9 @@ export const arrangements: Arrangement[] = [
       { type: 'testimonials', variant: 'cards', role: 'reviews' },
       { type: 'faq', variant: 'accordion', role: 'faq' },
       { type: 'contact', variant: 'form', role: 'contact' },
+      { type: 'map', variant: 'side-by-side', role: 'map' },
       { type: 'footer', variant: 'simple', role: 'footer' },
+      { type: 'whatsapp', variant: 'floating', role: 'whatsapp' },
     ],
   },
   {
@@ -92,7 +97,9 @@ export const arrangements: Arrangement[] = [
       { type: 'features', variant: 'alternating', role: 'services' },
       { type: 'stats', variant: 'bar', role: 'stats' },
       { type: 'contact', variant: 'form', role: 'contact' },
+      { type: 'map', variant: 'full', role: 'map' },
       { type: 'footer', variant: 'minimal', role: 'footer' },
+      { type: 'whatsapp', variant: 'floating', role: 'whatsapp' },
     ],
   },
   {

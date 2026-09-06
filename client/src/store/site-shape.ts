@@ -10,6 +10,13 @@ import type { BlockConfig, PageConfig, SiteConfig, SiteRegion } from '@/blocks/t
 /** Block types that belong above every page rather than inside one. */
 const HEADER_TYPES = new Set(['navbar', 'banner'])
 
+/**
+ * Types that belong below every page. The floating WhatsApp button is here
+ * rather than in the page flow because it is an overlay pinned to the window —
+ * it should follow the visitor from page to page like the footer does.
+ */
+const FOOTER_TYPES = new Set(['footer', 'whatsapp'])
+
 export function ensurePages(config: SiteConfig): PageConfig[] {
   if (config.pages && config.pages.length > 0) return config.pages
   return [{ id: 'page-home', name: 'Home', path: '/', blocks: config.blocks, showInMenu: true }]
@@ -37,7 +44,7 @@ export function splitHeaderFooter(config: SiteConfig): SiteConfig {
 
   const footer: BlockConfig[] = []
   let end = first.length
-  while (end > start && first[end - 1].type === 'footer') {
+  while (end > start && FOOTER_TYPES.has(first[end - 1].type)) {
     footer.unshift(first[end - 1])
     end -= 1
   }
@@ -50,7 +57,7 @@ export function splitHeaderFooter(config: SiteConfig): SiteConfig {
     blocks:
       index === 0
         ? page.blocks.slice(start, end)
-        : page.blocks.filter((b) => !HEADER_TYPES.has(b.type) && b.type !== 'footer'),
+        : page.blocks.filter((b) => !HEADER_TYPES.has(b.type) && !FOOTER_TYPES.has(b.type)),
   }))
 
   return {

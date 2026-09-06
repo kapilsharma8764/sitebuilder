@@ -550,6 +550,89 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
     ],
   },
 
+  map: {
+    groups: [
+      {
+        title: 'Content',
+        fields: {
+          title: { kind: 'text', label: 'Heading' },
+          address: {
+            kind: 'textarea',
+            label: 'Address',
+            rows: 3,
+            help: 'Shown beside the map, and used to find the location.',
+          },
+          mapUrl: {
+            kind: 'text',
+            label: 'Google Maps link',
+            placeholder: 'https://maps.google.com/…',
+            help: 'Optional. Used only if the address above is empty.',
+          },
+          timing: { kind: 'text', label: 'Opening hours' },
+        },
+      },
+      {
+        title: 'Layout',
+        fields: {
+          variant: {
+            kind: 'select',
+            label: 'Style',
+            options: [
+              { value: 'full', label: 'Map across the width' },
+              { value: 'side-by-side', label: 'Address beside the map' },
+            ],
+          },
+          height: { kind: 'number', label: 'Map height', min: 200, max: 700, step: 20, unit: 'px' },
+        },
+      },
+    ],
+  },
+
+  whatsapp: {
+    groups: [
+      {
+        title: 'Content',
+        fields: {
+          number: {
+            kind: 'text',
+            label: 'WhatsApp number',
+            placeholder: '98765 43210',
+            help: 'Spaces and dashes are fine. Leave empty to hide the button.',
+          },
+          countryCode: { kind: 'text', label: 'Country code', placeholder: '91' },
+          label: { kind: 'text', label: 'Button text' },
+          message: {
+            kind: 'textarea',
+            label: 'Opening message',
+            rows: 2,
+            help: 'Filled in for the visitor when the chat opens.',
+          },
+        },
+      },
+      {
+        title: 'Layout',
+        fields: {
+          variant: {
+            kind: 'select',
+            label: 'Style',
+            options: [
+              { value: 'floating', label: 'Floats in the corner' },
+              { value: 'inline', label: 'Sits in the page' },
+            ],
+          },
+          side: {
+            kind: 'select',
+            label: 'Corner',
+            options: [
+              { value: 'right', label: 'Bottom right' },
+              { value: 'left', label: 'Bottom left' },
+            ],
+          },
+        },
+      },
+    ],
+  },
+
   divider: {
     groups: [
       {

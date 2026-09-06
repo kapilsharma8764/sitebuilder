@@ -54,10 +54,18 @@ describe('template catalogue', () => {
   })
 
   it('starts every template with a header and ends it with a footer', () => {
+    // Overlays such as the floating WhatsApp button sit after the footer in the
+    // list because they are pinned to the window, not part of the page flow.
+    const overlays = new Set(['whatsapp'])
     for (const card of templateCards) {
       const types = buildFromDefinition(card).blocks.map((b) => b.type)
       expect(types, `${card.id} has no navbar`).toContain('navbar')
-      expect(types[types.length - 1], `${card.id} does not end in a footer`).toBe('footer')
+
+      const footerAt = types.lastIndexOf('footer')
+      expect(footerAt, `${card.id} has no footer`).toBeGreaterThan(-1)
+      for (const after of types.slice(footerAt + 1)) {
+        expect(overlays.has(after), `${card.id} has ${after} after the footer`).toBe(true)
+      }
     }
   })
 

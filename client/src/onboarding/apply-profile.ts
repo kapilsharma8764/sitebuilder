@@ -43,6 +43,19 @@ function applyToBlock(block: BlockConfig, profile: BusinessProfile): BlockConfig
       )
       break
 
+    case 'map':
+      props.address = pick(contact.address, props.address)
+      props.mapUrl = pick(contact.mapUrl, props.mapUrl)
+      props.timing = pick(contact.officeTiming, props.timing)
+      break
+
+    case 'whatsapp':
+      // Only when the owner ticked that their mobile takes WhatsApp. Without a
+      // number the widget renders nothing, so an unticked box quietly removes
+      // the button rather than publishing one that goes nowhere.
+      props.number = contact.whatsapp ? contact.mobile.trim() : ''
+      break
+
     case 'footer':
       props.logo = pick(profile.name, props.logo)
       if (profile.logoSquare.trim()) props.logoImage = profile.logoSquare.trim()

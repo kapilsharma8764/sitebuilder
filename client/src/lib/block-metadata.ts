@@ -147,6 +147,33 @@ export const blockMetadata: BlockMeta[] = [
     defaultProps: { title: 'Gallery' },
   },
   {
+    type: 'map',
+    label: 'Map',
+    description: 'Google map showing where the business is',
+    category: 'Contact',
+    variants: ['full', 'side-by-side'],
+    defaultProps: {
+      title: 'Find us',
+      address: '',
+      timing: 'Mon–Sat, 9 AM – 7 PM',
+      height: 360,
+    },
+  },
+  {
+    type: 'whatsapp',
+    label: 'WhatsApp button',
+    description: 'Chat button that opens WhatsApp',
+    category: 'Contact',
+    variants: ['floating', 'inline'],
+    defaultProps: {
+      number: '',
+      countryCode: '91',
+      label: 'Chat with us',
+      message: 'Hello! I would like to know more.',
+      side: 'right',
+    },
+  },
+  {
     type: 'divider',
     label: 'Divider',
     description: 'Visual separator between sections',

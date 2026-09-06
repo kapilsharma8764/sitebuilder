@@ -4,7 +4,7 @@ import {
   Layout, Type, Grid3X3, DollarSign, Megaphone, PanelBottom,
   MessageSquare, BarChart3, HelpCircle, Users, Mail, Newspaper, Image,
   Copy, Trash2, GripVertical, Plus, Search, Minus, Flag,
-  FileText, ImageIcon, Play, GalleryHorizontalEnd,
+  FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle,
 } from 'lucide-react'
 import {
   DndContext,
@@ -34,15 +34,13 @@ const blockIcons: Record<BlockType, typeof Layout> = {
   stats: BarChart3, faq: HelpCircle, team: Users, contact: Mail,
   newsletter: Newspaper, logocloud: Image, divider: Minus, banner: Flag,
   content: FileText, image: ImageIcon, video: Play, gallery: GalleryHorizontalEnd,
+  map: MapPin, whatsapp: MessageCircle,
 }
 
-const blockLabels: Record<BlockType, string> = {
-  navbar: 'Navbar', hero: 'Hero', features: 'Features', pricing: 'Pricing',
-  cta: 'CTA', footer: 'Footer', testimonials: 'Testimonials', stats: 'Stats',
-  faq: 'FAQ', team: 'Team', contact: 'Contact', newsletter: 'Newsletter',
-  logocloud: 'Logo Cloud', divider: 'Divider', banner: 'Banner',
-  content: 'Content', image: 'Image', video: 'Video', gallery: 'Gallery',
-}
+/** Labels come from the widget library so the two cannot drift apart. */
+const blockLabels = Object.fromEntries(
+  blockMetadata.map((meta) => [meta.type, meta.label]),
+) as Record<BlockType, string>
 
 function SortableLayer({ block, isSelected, onSelect, onDuplicate, onRemove }: {
   block: BlockConfig
