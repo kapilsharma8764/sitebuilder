@@ -1,4 +1,5 @@
 import type { BlockConfig } from './types'
+import { isEmptyStyle, styleToCss, widthCss } from './block-style'
 import { Component, type ReactNode } from 'react'
 
 import { NavbarBlock } from './navbar/NavbarBlock'
@@ -86,9 +87,24 @@ const blockRenderers: Record<string, React.ComponentType<{ block: BlockConfig }>
 
 export function RenderBlock({ block }: { block: BlockConfig }): ReactNode {
   const Renderer = blockRenderers[block.type] || PlaceholderBlock
-  return (
+
+  const content = (
     <BlockErrorBoundary blockType={block.type}>
       <Renderer block={block} />
     </BlockErrorBoundary>
+  )
+
+  // A section with no styling of its own is rendered bare, so the common case
+  // adds no markup at all.
+  if (isEmptyStyle(block.style)) return content
+  if (block.style?.hidden) return null
+
+  const outer = styleToCss(block.style)
+  const inner = widthCss(block.style)
+
+  return (
+    <div style={outer}>
+      {Object.keys(inner).length > 0 ? <div style={inner}>{content}</div> : content}
+    </div>
   )
 }

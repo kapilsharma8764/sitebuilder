@@ -23,11 +23,39 @@ export type BlockType =
 
 export type BlockVariant = string
 
+/**
+ * Per-section styling, applied by the renderer around whatever the widget
+ * draws.
+ *
+ * This is the "resize and restyle" part of the brief, done the way Elementor
+ * does it rather than the way Framer does: not free dragging on a canvas, but
+ * a set of controls — width, spacing, background, alignment, type — that apply
+ * to the section you have selected. Every value is optional, and an absent one
+ * means "leave the widget's own design alone".
+ */
+export interface BlockStyle {
+  /** How wide the content runs: full bleed, centred column, or narrow. */
+  width?: 'full' | 'centered' | 'narrow'
+  paddingTop?: number
+  paddingBottom?: number
+  background?: string
+  backgroundImage?: string
+  textAlign?: 'left' | 'center' | 'right'
+  textColor?: string
+  /** Scales the section's text, 100 being the design's own size. */
+  fontScale?: number
+  fontFamily?: string
+  radius?: number
+  /** Hides the section without deleting it. */
+  hidden?: boolean
+}
+
 export interface BlockConfig {
   id: string
   type: BlockType
   variant: BlockVariant
   props: Record<string, unknown>
+  style?: BlockStyle
 }
 
 export interface ThemeConfig {

@@ -2,20 +2,21 @@ import { useState } from 'react'
 import { useEditorStore } from '@/store/editorStore'
 import { useConfigStore } from '@/store/configStore'
 import { PropertiesPanel } from '@/builder/PropertiesPanel'
+import { StylePanel } from '@/builder/StylePanel'
+import { regionBlocks, regionOfBlock } from '@/store/site-shape'
 import { DesignPanel } from './DesignPanel'
 
-type Tab = 'properties' | 'design'
+type Tab = 'content' | 'style' | 'design'
 
 export function RightSidebar() {
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId)
-  const blocks = useConfigStore((s) => {
-    const pages = s.config.pages
-    if (!pages || pages.length === 0) return s.config.blocks
-    const page = pages.find((p) => p.id === s.activePageId) ?? pages[0]
-    return page.blocks
+  // The selected block may be in the header or footer rather than the page.
+  const selectedBlock = useConfigStore((s) => {
+    if (!selectedBlockId) return undefined
+    const region = regionOfBlock(s.config, selectedBlockId, s.activePageId)
+    return regionBlocks(s.config, region, s.activePageId).find((b) => b.id === selectedBlockId)
   })
-  const selectedBlock = blocks.find((b) => b.id === selectedBlockId)
-  const [tab, setTab] = useState<Tab>('properties')
+  const [tab, setTab] = useState<Tab>('content')
 
   // Selecting a block should bring its Properties forward, even if the user
   // was last looking at Design. Adjusting state during render (rather than in
@@ -24,7 +25,9 @@ export function RightSidebar() {
   const [lastSelectedId, setLastSelectedId] = useState(selectedBlockId)
   if (selectedBlockId !== lastSelectedId) {
     setLastSelectedId(selectedBlockId)
-    if (selectedBlockId) setTab('properties')
+    // Keep Style selected if that is where the user was working; jumping back
+    // to Content on every click would fight anyone restyling several sections.
+    if (selectedBlockId && tab === 'design') setTab('content')
   }
 
   const activeTab = tab
@@ -33,26 +36,26 @@ export function RightSidebar() {
     <div className="hidden md:flex w-[280px] bg-bg-1 border-l border-border-default flex-col shrink-0">
       {/* Tabs */}
       <div className="flex border-b border-border-default shrink-0">
-        <button
-          onClick={() => setTab('properties')}
-          className={`flex-1 py-2 text-[11px] font-medium transition-colors ${
-            activeTab === 'properties'
-              ? 'text-text-0 border-b border-brand'
-              : 'text-text-3 hover:text-text-1'
-          }`}
-        >
-          Properties
-        </button>
-        <button
-          onClick={() => setTab('design')}
-          className={`flex-1 py-2 text-[11px] font-medium transition-colors ${
-            activeTab === 'design'
-              ? 'text-text-0 border-b border-brand'
-              : 'text-text-3 hover:text-text-1'
-          }`}
-        >
-          Design
-        </button>
+        {(
+          [
+            ['content', 'Content'],
+            ['style', 'Style'],
+            ['design', 'Site'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTab(value)}
+            className={`flex-1 py-2 text-[11px] font-medium transition-colors ${
+              activeTab === value
+                ? 'text-text-0 border-b border-brand'
+                : 'text-text-3 hover:text-text-1'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Content */}
@@ -61,6 +64,8 @@ export function RightSidebar() {
           <div className="flex-1 overflow-y-auto">
             <DesignPanel />
           </div>
+        ) : activeTab === 'style' ? (
+          <StylePanel block={selectedBlock} />
         ) : (
           <PropertiesPanel block={selectedBlock} />
         )}

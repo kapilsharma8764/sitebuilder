@@ -1,4 +1,7 @@
 import type { SiteConfig, BlockConfig } from '@/blocks/types'
+import { isEmptyStyle, styleToCssText } from '@/blocks/block-style'
+import { mapEmbedUrl, mapQuery } from '@/blocks/map/query'
+import { whatsappHref, whatsappNumber } from '@/blocks/whatsapp/link'
 import { resolveTheme } from '@/lib/theme-presets'
 
 export interface ExportSiteSettings {
@@ -1150,7 +1153,63 @@ ${logosHtml}
 // Block dispatcher
 // ---------------------------------------------------------------------------
 
+function renderMap(block: BlockConfig): string {
+  const title = String(block.props.title ?? '')
+  const address = String(block.props.address ?? '')
+  const timing = String(block.props.timing ?? '')
+  const height = Number(block.props.height) || 360
+  const query = mapQuery(block.props)
+  if (!query) return ''
+
+  return `  <section class="section">
+    ${title ? `<h2 class="section-title">${escapeHtml(title)}</h2>` : ''}
+    <iframe title="${escapeHtml(title || 'Location map')}" src="${escapeHtml(mapEmbedUrl(query))}" loading="lazy" style="width:100%;height:${height}px;border:0;border-radius:12px"></iframe>
+    ${address || timing ? `<p class="section-sub">${escapeHtml([address, timing].filter(Boolean).join(' · '))}</p>` : ''}
+  </section>`
+}
+
+function renderWhatsapp(block: BlockConfig): string {
+  const number = whatsappNumber(String(block.props.number ?? ''), String(block.props.countryCode ?? '91'))
+  if (!number) return ''
+  const label = String(block.props.label ?? 'Chat with us')
+  const href = whatsappHref(number, String(block.props.message ?? ''))
+  const side = block.props.side === 'left' ? 'left:20px' : 'right:20px'
+
+  if (block.variant === 'inline') {
+    return `  <section class="section" style="text-align:center">
+    <a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">${escapeHtml(label)}</a>
+  </section>`
+  }
+
+  return `  <a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(label)}" style="position:fixed;bottom:20px;${side};z-index:40;display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;background:#25D366;color:#fff;font-weight:600;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25)">${escapeHtml(label)}</a>`
+}
+
+/**
+ * Wraps a rendered section in whatever styling it carries.
+ *
+ * Uses the same rules as the editor canvas, so the published page matches what
+ * was on screen. A section with no styling is emitted bare.
+ */
+function withBlockStyle(block: BlockConfig, html: string): string {
+  if (block.style?.hidden) return ''
+  if (isEmptyStyle(block.style)) return html
+
+  const outer = styleToCssText({ ...block.style, width: undefined })
+  const inner = styleToCssText({ width: block.style?.width })
+
+  const body = inner ? `  <div style="${escapeHtml(inner)}">
+${html}
+  </div>` : html
+  return outer ? `  <div style="${escapeHtml(outer)}">
+${body}
+  </div>` : body
+}
+
 function renderBlock(block: BlockConfig): string {
+  return withBlockStyle(block, renderBlockContent(block))
+}
+
+function renderBlockContent(block: BlockConfig): string {
   switch (block.type) {
     case 'navbar':
       return renderNavbar(block)
@@ -1178,6 +1237,10 @@ function renderBlock(block: BlockConfig): string {
       return renderNewsletter(block)
     case 'logocloud':
       return renderLogoCloud(block)
+    case 'map':
+      return renderMap(block)
+    case 'whatsapp':
+      return renderWhatsapp(block)
     default:
       return `  <!-- Unknown block type: ${escapeHtml(block.type)} -->`
   }
