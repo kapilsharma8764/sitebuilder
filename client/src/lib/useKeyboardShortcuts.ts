@@ -18,10 +18,10 @@ export function useKeyboardShortcuts() {
       // Nav shortcuts: 1-5
       if (!e.metaKey && !e.ctrlKey && !e.altKey) {
         switch (e.key) {
-          case '1': e.preventDefault(); navigate('/'); return
+          case '1': e.preventDefault(); navigate('/dashboard'); return
           case '2': e.preventDefault(); navigate('/editor'); return
-          case '3': e.preventDefault(); navigate('/components'); return
-          case '4': e.preventDefault(); navigate('/deploy'); return
+          case '3': e.preventDefault(); navigate('/leads'); return
+          case '4': e.preventDefault(); navigate('/components'); return
           case '5': e.preventDefault(); navigate('/settings'); return
           case '?': e.preventDefault(); toggleShortcutsModal(); return
         }

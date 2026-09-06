@@ -8,7 +8,6 @@ import { Dashboard } from './routes/Dashboard'
 import { Leads } from './routes/Leads'
 import { Editor } from './routes/Editor'
 import { Components } from './routes/Components'
-import { Deploy } from './routes/Deploy'
 import { Settings } from './routes/Settings'
 import { NotFound } from './routes/NotFound'
 import { useKeyboardShortcuts } from './lib/useKeyboardShortcuts'
@@ -27,7 +26,6 @@ function AppRoutes() {
         <Route path="new" element={<Navigate to="/create" replace />} />
         <Route path="editor" element={<Editor />} />
         <Route path="components" element={<Components />} />
-        <Route path="deploy" element={<Deploy />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -6,10 +6,10 @@ const shortcutGroups = [
   {
     title: 'Navigation',
     shortcuts: [
-      { keys: ['1'], description: 'Dashboard' },
+      { keys: ['1'], description: 'Your sites' },
       { keys: ['2'], description: 'Editor' },
-      { keys: ['3'], description: 'Components' },
-      { keys: ['4'], description: 'Deploy' },
+      { keys: ['3'], description: 'Enquiries' },
+      { keys: ['4'], description: 'Components' },
       { keys: ['5'], description: 'Settings' },
     ],
   },
