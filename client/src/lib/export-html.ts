@@ -1324,9 +1324,13 @@ export function exportSiteToHTML(config: SiteConfig, options?: ExportSiteOptions
     })
   </script>`
 
-  const hasFaq = config.blocks.some((b) => b.type === 'faq')
+  // The published page is assembled the way the editor draws it: the shared
+  // header, then the page's own blocks, then the shared footer.
+  const pageBlocks = [...(config.header ?? []), ...config.blocks, ...(config.footer ?? [])]
 
-  const blocksHtml = config.blocks.map((b) => renderBlock(b)).join('\n\n')
+  const hasFaq = pageBlocks.some((b) => b.type === 'faq')
+
+  const blocksHtml = pageBlocks.map((b) => renderBlock(b)).join('\n\n')
 
   const pageTitle = (settings?.seoTitle || settings?.siteName || config.name || 'Website').trim()
   const pageDescription = (settings?.seoDescription || settings?.siteDescription || '').trim()
