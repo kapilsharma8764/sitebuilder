@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Search, Layout, Type, Grid3X3, DollarSign, Megaphone, PanelBottom, MessageSquare, BarChart3, HelpCircle, Users, Mail, Newspaper, Image, Plus, Minus, Flag, FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle } from 'lucide-react'
 import { LayersPanel } from './LayersPanel'
+import { PagesPanel } from '@/builder/PagesPanel'
 import { useConfigStore } from '@/store/configStore'
 import { useEditorStore } from '@/store/editorStore'
 import { blockMetadata } from '@/lib/block-metadata'
@@ -97,36 +98,42 @@ function ComponentsPanel() {
   )
 }
 
-type Tab = 'layers' | 'components'
+type Tab = 'pages' | 'layers' | 'components'
 
 export function LeftSidebar() {
-  const [tab, setTab] = useState<Tab>('layers')
+  const [tab, setTab] = useState<Tab>('pages')
 
   return (
     <div className="hidden md:flex w-[280px] bg-bg-1 border-r border-border-default flex-col shrink-0">
       <div className="flex border-b border-border-default shrink-0">
-        <button
-          onClick={() => setTab('layers')}
-          className={`flex-1 py-2 text-[11px] font-medium transition-colors ${
-            tab === 'layers'
-              ? 'text-text-0 border-b border-brand'
-              : 'text-text-3 hover:text-text-1'
-          }`}
-        >
-          Layers
-        </button>
-        <button
-          onClick={() => setTab('components')}
-          className={`flex-1 py-2 text-[11px] font-medium transition-colors ${
-            tab === 'components'
-              ? 'text-text-0 border-b border-brand'
-              : 'text-text-3 hover:text-text-1'
-          }`}
-        >
-          Components
-        </button>
+        {(
+          [
+            ['pages', 'Pages'],
+            ['components', 'Widgets'],
+            ['layers', 'Layers'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTab(value)}
+            className={`flex-1 py-2 text-[11px] font-medium transition-colors ${
+              tab === value
+                ? 'text-text-0 border-b border-brand'
+                : 'text-text-3 hover:text-text-1'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
-      {tab === 'layers' ? <LayersPanel /> : <ComponentsPanel />}
+      {tab === 'pages' ? (
+        <PagesPanel />
+      ) : tab === 'layers' ? (
+        <LayersPanel />
+      ) : (
+        <ComponentsPanel />
+      )}
     </div>
   )
 }

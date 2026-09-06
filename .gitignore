@@ -21,3 +21,6 @@ logs/
 
 coverage/
 .vite/
+
+# Local API data — a running server writes here
+server/data/
