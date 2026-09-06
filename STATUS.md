@@ -78,14 +78,16 @@ npm run dev
 | Publish → live link | ✅ |
 | CRM (leads) | ✅ Enquiries page |
 
-**Bacha hua:** logo ka cropping tool (upload ho jaata hai, crop nahi), aur Graph widget.
+| **Graph / Chart** widget | ✅ bars, columns, donut |
+
+**Bacha hua:** sirf logo ka cropping tool (upload ho jaata hai, crop nahi).
 
 ---
 
 ## Quality
 
 ```
-68 tests pass  (client)
+78 tests pass  (client)
 6 tests pass   (server)
 CI green       har push pe lint + test + build apne aap chalta hai
 0 lint errors
@@ -96,6 +98,9 @@ CI green       har push pe lint + test + build apne aap chalta hai
 2. Published page me **header/footer hi nahi ja raha tha**
 3. Contact form `onsubmit="return false"` tha — **kuch karta hi nahi tha**
 4. Hero me "Hero Image URL" jaisi **jhooti settings** thi jo component padhta hi nahi tha
+5. **6 widgets publish me ja hi nahi rahe the** — About text, photos, gallery, video,
+   divider, banner. Editor me dikhte the, live page pe gayab. (Tumhari publish ki hui
+   site isi wajah se adhoori thi — maine dobara publish karke theek kar di hai.)
 
 ---
 
