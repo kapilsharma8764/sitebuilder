@@ -37,5 +37,18 @@
     "message": "Enquiry 1788721528798",
     "extra": {},
     "status": "new"
+  },
+  {
+    "id": "c6398274-8704-40ac-bdf4-88dff3a42a7c",
+    "createdAt": "2026-09-06T19:07:38.691Z",
+    "updatedAt": "2026-09-06T19:07:38.691Z",
+    "siteId": "1acab0b2-b7ba-4849-9ed7-13e557e6ea8c",
+    "slug": "test-business-1788721658628",
+    "name": "Ramesh",
+    "email": "",
+    "phone": "98765 43210",
+    "message": "Enquiry 1788721658685",
+    "extra": {},
+    "status": "new"
   }
 ]

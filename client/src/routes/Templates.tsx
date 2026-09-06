@@ -7,6 +7,8 @@ import { buildFromDefinition } from '@/templates/build'
 import { RenderBlock } from '@/blocks/registry'
 import { resolveTheme, themeToCSS } from '@/lib/theme-presets'
 import { useConfigStore } from '@/store/configStore'
+import { usePublishStore } from '@/store/publishStore'
+import { api } from '@/lib/api'
 import { useBusinessStore } from '@/store/businessStore'
 import { applyProfile } from '@/onboarding/apply-profile'
 import type { SiteConfig } from '@/blocks/types'
@@ -48,6 +50,8 @@ export function Templates() {
   const navigate = useNavigate()
   const profile = useBusinessStore((s) => s.profile)
   const setConfig = useConfigStore((s) => s.setConfig)
+  const setSite = usePublishStore((s) => s.setSite)
+  const clearPublish = usePublishStore((s) => s.clear)
 
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<string>(() => {
@@ -82,10 +86,27 @@ export function Templates() {
     return [...matched].sort((a, b) => Number(b.suits) - Number(a.suits))
   }, [previews, search])
 
-  function useSelected() {
+  async function applySelected() {
     const chosen = previews.find((p) => p.meta.id === selected)
     if (!chosen) return
+
     setConfig(chosen.config)
+    clearPublish()
+
+    // Register the new site so the editor can save into it. If the API is not
+    // running the editor still opens — the design is applied either way, and
+    // publishing will create the record then.
+    try {
+      const created = await api.createSite({
+        name: profile.name.trim() || chosen.meta.name,
+        config: chosen.config,
+        profile,
+      })
+      setSite(created.id)
+    } catch {
+      // Left unsaved on purpose; nothing here should block reaching the editor.
+    }
+
     toast(`${chosen.meta.name} applied`)
     navigate('/editor')
   }
@@ -191,7 +212,7 @@ export function Templates() {
           </p>
           <button
             type="button"
-            onClick={useSelected}
+            onClick={() => void applySelected()}
             className="px-5 py-2.5 rounded-xl bg-text-0 text-bg-0 text-[13px] font-semibold hover:opacity-90 transition-opacity"
           >
             Use this design

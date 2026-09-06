@@ -21,6 +21,7 @@ import { useEditorStore, type Viewport } from '@/store/editorStore'
 import { useConfigStore } from '@/store/configStore'
 import { pathFromName } from '@/store/site-shape'
 import { usePublish } from '@/builder/usePublish'
+import { useAutoSave } from '@/builder/useAutoSave'
 import { useProjectsStore } from '@/store/projectsStore'
 import type { PageConfig } from '@/blocks/types'
 import { exportToHTML, downloadHTML } from '@/lib/export-html'
@@ -196,6 +197,7 @@ export function CanvasToolbar() {
   const [showAddPage, setShowAddPage] = useState(false)
   const [exporting, setExporting] = useState(false)
   const { publish, busy: publishing, url: liveUrl } = usePublish()
+  const saveState = useAutoSave()
 
   const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) : null
   const projectName = activeProject?.name || configName
@@ -361,6 +363,21 @@ export function CanvasToolbar() {
         >
           <HelpCircle size={14} />
         </button>
+
+        {/* Quiet, non-blocking: it says where the work stands without
+            interrupting anyone mid-edit. */}
+        <span
+          className="hidden xl:inline text-[10.5px] text-text-3 mr-1 min-w-[54px] text-right"
+          aria-live="polite"
+        >
+          {saveState === 'saving'
+            ? 'Saving…'
+            : saveState === 'saved'
+              ? 'Saved'
+              : saveState === 'offline'
+                ? 'Offline'
+                : ''}
+        </span>
 
         <div className="w-px h-5 bg-border-default mx-1" />
 
