@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from './layout/ErrorBoundary'
 import { AppLayout } from './layout/AppLayout'
+import { Landing } from './routes/Landing'
+import { CreateWebsite } from './routes/CreateWebsite'
+import { Templates } from './routes/Templates'
 import { Dashboard } from './routes/Dashboard'
 import { Editor } from './routes/Editor'
 import { Components } from './routes/Components'
@@ -15,8 +18,11 @@ function AppRoutes() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="new" element={<Navigate to="/" replace />} />
+        <Route index element={<Landing />} />
+        <Route path="create" element={<CreateWebsite />} />
+        <Route path="templates" element={<Templates />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="new" element={<Navigate to="/create" replace />} />
         <Route path="editor" element={<Editor />} />
         <Route path="components" element={<Components />} />
         <Route path="deploy" element={<Deploy />} />
