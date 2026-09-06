@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { MousePointer2 } from 'lucide-react'
 import { useEditorStore } from '@/store/editorStore'
 import { useConfigStore } from '@/store/configStore'
-import { PropertiesPanel } from './PropertiesPanel'
+import { PropertiesPanel } from '@/builder/PropertiesPanel'
 import { DesignPanel } from './DesignPanel'
 
 type Tab = 'properties' | 'design'
@@ -57,26 +56,13 @@ export function RightSidebar() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'design' ? (
-          <DesignPanel />
-        ) : selectedBlock ? (
-          <>
-            <PropertiesPanel block={selectedBlock} />
-            <div className="mt-auto px-3.5 py-2.5 font-mono text-[10.5px] text-text-3 break-all border-t border-border-subtle">
-              config.blocks[{blocks.indexOf(selectedBlock)}]
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center px-6 py-16 gap-3">
-            <div className="w-10 h-10 rounded-lg bg-bg-3 border border-border-default flex items-center justify-center">
-              <MousePointer2 size={16} className="text-text-3" />
-            </div>
-            <div>
-              <p className="text-text-1 text-[12px] font-medium">Click a block to edit</p>
-              <p className="text-text-3 text-[11px] mt-1">Select any block on the canvas to see its properties here</p>
-            </div>
+          <div className="flex-1 overflow-y-auto">
+            <DesignPanel />
           </div>
+        ) : (
+          <PropertiesPanel block={selectedBlock} />
         )}
       </div>
     </div>
