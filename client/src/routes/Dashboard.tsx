@@ -7,7 +7,8 @@ import { useProjectsStore, type Project } from '@/store/projectsStore'
 import { useConfigStore, defaultConfig } from '@/store/configStore'
 import { useEditorStore } from '@/store/editorStore'
 import { hexToRgb } from '@/lib/theme-presets'
-import { templateMeta, buildTemplate } from '@/lib/templates'
+import { templateCards } from '@/templates/catalogue'
+import { buildFromDefinition } from '@/templates/build'
 
 const templateIcons: Record<string, typeof Briefcase> = {
   Briefcase, UtensilsCrossed, Building2, BookOpen,
@@ -66,7 +67,8 @@ function PromptSection() {
   function startFromTemplate(tplId: string, tplName: string) {
     const id = addProject(tplName)
     setActiveProject(id)
-    setConfig(buildTemplate(tplId, tplName))
+    const card = templateCards.find((c) => c.id === tplId)
+    if (card) setConfig(buildFromDefinition(card))
     navigate('/editor')
   }
 
@@ -152,7 +154,7 @@ function PromptSection() {
 
         {/* Template cards */}
         <div className="w-full max-w-[680px] mt-5 grid grid-cols-2 md:grid-cols-4 gap-2.5 animate-fade-in-up stagger-5">
-          {templateMeta.map((tpl) => {
+          {templateCards.slice(0, 4).map((tpl) => {
             const rgb = hexToRgb(tpl.accent)
             const Icon = templateIcons[tpl.icon] || Layers
             return (

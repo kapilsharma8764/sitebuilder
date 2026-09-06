@@ -13,7 +13,8 @@ import { useConfigStore } from '@/store/configStore'
 import { useEditorStore } from '@/store/editorStore'
 import { useProjectsStore } from '@/store/projectsStore'
 import { generateSiteConfig } from '@/lib/generate-site'
-import { templateMeta, buildTemplate } from '@/lib/templates'
+import { templateCards } from '@/templates/catalogue'
+import { buildFromDefinition } from '@/templates/build'
 import { hexToRgb } from '@/lib/theme-presets'
 
 const templateIcons: Record<string, typeof Briefcase> = {
@@ -104,7 +105,8 @@ function EditorEmptyState() {
   function startFromTemplate(tplId: string, tplName: string) {
     const id = addProject(tplName)
     setActiveProject(id)
-    setConfig(buildTemplate(tplId, tplName))
+    const card = templateCards.find((c) => c.id === tplId)
+    if (card) setConfig(buildFromDefinition(card))
   }
 
   return (
@@ -124,7 +126,7 @@ function EditorEmptyState() {
         </button>
 
         <div className="grid grid-cols-2 gap-2 w-full">
-          {templateMeta.map((tpl) => {
+          {templateCards.slice(0, 4).map((tpl) => {
             const rgb = hexToRgb(tpl.accent)
             const Icon = templateIcons[tpl.icon] || Layers
             return (

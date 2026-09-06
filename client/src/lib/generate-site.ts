@@ -1,7 +1,8 @@
 import type { SiteConfig, BlockConfig, ThemeConfig } from '@/blocks/types'
 import { blockMetadata } from '@/lib/block-metadata'
 import { GENERATION_PROMPT } from '@/lib/generation-prompt'
-import { getTemplateForPrompt } from '@/lib/templates'
+import { templateForPrompt } from '@/templates/catalogue'
+import { buildFromDefinition } from '@/templates/build'
 import { newId } from './id'
 
 const VALID_BLOCK_TYPES = new Set<string>(blockMetadata.map((b) => b.type))
@@ -48,7 +49,7 @@ export async function generateSiteConfig(prompt: string, signal?: AbortSignal): 
   }
 
   // 3. Smart fallback template (instant, no fake progress)
-  return { config: getTemplateForPrompt(prompt), source: 'template' }
+  return { config: buildFromDefinition(templateForPrompt(prompt)), source: 'template' }
 }
 
 async function callGeminiDirect(prompt: string, apiKey: string, signal?: AbortSignal): Promise<SiteConfig> {
@@ -143,7 +144,7 @@ function validatePageBlocks(rawBlocks: unknown[]): BlockConfig[] {
 
 export function validateSiteConfig(raw: unknown, prompt?: string): SiteConfig {
   if (!raw || typeof raw !== 'object') {
-    return getTemplateForPrompt(prompt || '')
+    return buildFromDefinition(templateForPrompt(prompt || ''))
   }
 
   const obj = raw as Record<string, unknown>
@@ -181,7 +182,7 @@ export function validateSiteConfig(raw: unknown, prompt?: string): SiteConfig {
   }
 
   if (!pages && blocks.length === 0) {
-    return getTemplateForPrompt(prompt || '')
+    return buildFromDefinition(templateForPrompt(prompt || ''))
   }
 
   // If no pages but have blocks, wrap into single Home page

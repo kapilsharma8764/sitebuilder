@@ -2,13 +2,13 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Search, Check } from 'lucide-react'
 import { toast } from 'sonner'
-import { templateMeta, buildTemplate } from '@/lib/templates'
+import { templateCards } from '@/templates/catalogue'
+import { buildFromDefinition } from '@/templates/build'
 import { RenderBlock } from '@/blocks/registry'
 import { resolveTheme, themeToCSS } from '@/lib/theme-presets'
 import { useConfigStore } from '@/store/configStore'
 import { useBusinessStore } from '@/store/businessStore'
 import { applyProfile } from '@/onboarding/apply-profile'
-import type { WebsiteCategory } from '@/onboarding/profile'
 import type { SiteConfig } from '@/blocks/types'
 
 /**
@@ -18,15 +18,6 @@ import type { SiteConfig } from '@/blocks/types'
  * user picks is exactly what opens in the editor, and previews can never go
  * stale as widgets change.
  */
-
-/** Which categories each template suits. Drives the ordering, not a hard filter —
- *  someone should still be able to choose a design meant for another trade. */
-const templateAudience: Record<string, WebsiteCategory[]> = {
-  portfolio: ['technology', 'other'],
-  restaurant: ['business'],
-  agency: ['business', 'technology'],
-  blog: ['education', 'other'],
-}
 
 function TemplatePreview({ config }: { config: SiteConfig }) {
   const cssVars = useMemo(() => themeToCSS(resolveTheme(config.theme)), [config.theme])
@@ -62,19 +53,17 @@ export function Templates() {
   const [selected, setSelected] = useState<string>(() => {
     // One is chosen from the start, so someone who is unsure can press
     // Continue and still end up with a finished-looking site.
-    const suited = templateMeta.find((t) =>
-      profile.category ? templateAudience[t.id]?.includes(profile.category) : false,
-    )
-    return (suited ?? templateMeta[0]).id
+    const suited = templateCards.find((c) => c.category === profile.category)
+    return (suited ?? templateCards[0]).id
   })
 
   /** Built once per template, with the business's details already poured in. */
   const previews = useMemo(
     () =>
-      templateMeta.map((meta) => ({
+      templateCards.map((meta) => ({
         meta,
-        config: applyProfile(buildTemplate(meta.id, profile.name || meta.name), profile),
-        suits: profile.category ? templateAudience[meta.id]?.includes(profile.category) : false,
+        config: applyProfile(buildFromDefinition(meta), profile),
+        suits: meta.category === profile.category,
       })),
     [profile],
   )
@@ -85,7 +74,8 @@ export function Templates() {
       ? previews.filter(
           (p) =>
             p.meta.name.toLowerCase().includes(query) ||
-            p.meta.description.toLowerCase().includes(query),
+            p.meta.description.toLowerCase().includes(query) ||
+            p.meta.keywords.some((k) => k.includes(query)),
         )
       : previews
     // Designs that suit the answers given earlier come first.
@@ -197,7 +187,7 @@ export function Templates() {
       <div className="shrink-0 px-6 py-4 border-t border-border-default bg-bg-1">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <p className="text-[12px] text-text-3">
-            {templateMeta.find((m) => m.id === selected)?.name} selected
+            {templateCards.find((m) => m.id === selected)?.name} selected
           </p>
           <button
             type="button"
