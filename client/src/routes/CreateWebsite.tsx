@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, ImageOff } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ImageOff, Wand2 } from 'lucide-react'
 import { useBusinessStore } from '@/store/businessStore'
 import {
   audienceOptions,
@@ -8,6 +8,7 @@ import {
   offerOptions,
   isProfileComplete,
 } from '@/onboarding/profile'
+import { suggestAbout, suggestSlogans } from '@/onboarding/suggestions'
 
 /**
  * The Create Website flow: what kind of website, then the business details,
@@ -112,6 +113,19 @@ function LogoInput({
   )
 }
 
+function SuggestButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-1 text-[11px] text-brand hover:text-brand-dim transition-colors"
+    >
+      <Wand2 size={11} />
+      {label}
+    </button>
+  )
+}
+
 export function CreateWebsite() {
   const navigate = useNavigate()
   const profile = useBusinessStore((s) => s.profile)
@@ -120,6 +134,8 @@ export function CreateWebsite() {
   const complete = useBusinessStore((s) => s.complete)
 
   const [step, setStep] = useState(0)
+  // Cycles through the suggestions rather than showing the same one twice.
+  const [sloganIndex, setSloganIndex] = useState(0)
 
   // Each step names what it needs before the user can move on. Keeping this in
   // one place means the button state and the step never disagree.
@@ -250,9 +266,19 @@ export function CreateWebsite() {
               />
 
               <div>
-                <label className={labelClass} htmlFor="slogan">
-                  Slogan
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className={labelClass} htmlFor="slogan">
+                    Slogan
+                  </label>
+                  <SuggestButton
+                    label="Suggest one"
+                    onClick={() => {
+                      const options = suggestSlogans(profile)
+                      update({ slogan: options[sloganIndex % options.length] })
+                      setSloganIndex(sloganIndex + 1)
+                    }}
+                  />
+                </div>
                 <input
                   id="slogan"
                   type="text"
@@ -264,17 +290,26 @@ export function CreateWebsite() {
               </div>
 
               <div>
-                <label className={labelClass} htmlFor="about">
-                  About the business
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className={labelClass} htmlFor="about">
+                    About the business
+                  </label>
+                  <SuggestButton
+                    label="Write a first draft"
+                    onClick={() => update({ about: suggestAbout(profile) })}
+                  />
+                </div>
                 <textarea
                   id="about"
-                  rows={4}
+                  rows={5}
                   value={profile.about}
                   placeholder="A few lines about what you do and who you do it for."
                   onChange={(e) => update({ about: e.target.value })}
                   className={`${inputClass} resize-y leading-relaxed`}
                 />
+                <p className="mt-1 text-[11px] text-text-3">
+                  A draft to edit, not a finished text — change anything that is not true of you.
+                </p>
               </div>
             </div>
           )}
