@@ -1,5 +1,6 @@
 import type { BlockType } from '@/blocks/types'
 import type { WidgetSchema } from './field-types'
+import { iconNames } from '@/blocks/icons'
 
 /**
  * What each widget lets you change, and what those controls are called.
@@ -99,7 +100,17 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
             addLabel: 'Add card',
             titleKey: 'title',
             fields: {
-              icon: { kind: 'text', label: 'Icon name', help: 'A Lucide icon name, e.g. Zap, Shield, Globe.' },
+              // A dropdown rather than a text box: nobody should have to know
+              // that the scissors icon is spelled "Scissors".
+              icon: {
+                kind: 'select',
+                label: 'Icon',
+                options: iconNames.map((name) => ({
+                  value: name,
+                  // "HeartPulse" reads as "Heart Pulse" in the list.
+                  label: name.replace(/([a-z])([A-Z0-9])/g, '$1 $2'),
+                })),
+              },
               title: { kind: 'text', label: 'Card heading' },
               description: { kind: 'textarea', label: 'Card text', rows: 2 },
             },

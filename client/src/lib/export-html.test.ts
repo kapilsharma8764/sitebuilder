@@ -113,6 +113,18 @@ describe('exportSiteToHTML', () => {
     expect(html).toContain(photoPath)
   })
 
+  it('publishes real icons, not the first letter of their name', () => {
+    // The old export drew "S" in a box where the editor drew a pair of
+    // scissors, which is the kind of difference nobody notices until a
+    // customer opens the live site.
+    const card = templateCards.find((c) => c.id === 'blade')!
+    const config = syncMenu(splitHeaderFooter(buildFromDefinition(card)))
+    const html = exportSiteToHTML(config)
+
+    expect(html).toContain('lucide-scissors')
+    expect(html).not.toContain('font-family="system-ui, sans-serif"')
+  })
+
   it('renders every template without throwing', () => {
     for (const card of templateCards) {
       const config = syncMenu(splitHeaderFooter(buildFromDefinition(card)))

@@ -1,9 +1,5 @@
 import type { BlockConfig } from '../types'
-import {
-  Blocks, Code, Bot, Zap, Shield, Globe,
-  Layers, Palette, Rocket, Star, Lock, Settings,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { getIcon } from '../icons'
 
 interface FeatureItem {
   icon?: string
@@ -18,15 +14,6 @@ interface FeaturesProps {
   items: FeatureItem[]
 }
 
-const iconMap: Record<string, LucideIcon> = {
-  Blocks, Code, Bot, Zap, Shield, Globe,
-  Layers, Palette, Rocket, Star, Lock, Settings,
-}
-
-function getIcon(name?: string): LucideIcon {
-  if (!name) return Zap
-  return iconMap[name] || Zap
-}
 
 function FeaturesGrid({ props }: { props: FeaturesProps }) {
   return (

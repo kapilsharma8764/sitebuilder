@@ -1,5 +1,8 @@
 import type { SiteConfig, BlockConfig } from '@/blocks/types'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { isEmptyStyle, styleToCssText } from '@/blocks/block-style'
+import { getIcon } from '@/blocks/icons'
 import { donutSegment, toSlices } from '@/blocks/chart/chart-data'
 import { mapEmbedUrl, mapQuery } from '@/blocks/map/query'
 import { videoEmbedUrl } from '@/blocks/video/embed'
@@ -123,10 +126,17 @@ const SVG_MAIL =
 const SVG_STAR_10 =
   '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
 
-/** Simple icon placeholder for feature items (rounded square with initial) */
+/**
+ * The same icon the editor draws, as SVG markup.
+ *
+ * This used to render the icon's first letter in a box, so a published page
+ * showed "S" where the editor showed a pair of scissors. Rendering the actual
+ * Lucide component to a string keeps the two identical, and costs the page
+ * nothing at view time because the SVG is written into the file.
+ */
 function featureIconSvg(iconName: string): string {
-  const char = escapeHtml(iconName.charAt(0).toUpperCase())
-  return `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.5"/><text x="9" y="13" text-anchor="middle" fill="currentColor" font-size="10" font-weight="600" font-family="system-ui, sans-serif">${char}</text></svg>`
+  const Icon = getIcon(iconName)
+  return renderToStaticMarkup(createElement(Icon, { width: 18, height: 18 }))
 }
 
 function starRatingHtml(rating: number): string {
