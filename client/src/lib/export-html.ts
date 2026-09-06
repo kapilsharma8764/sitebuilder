@@ -1,6 +1,8 @@
 import type { SiteConfig, BlockConfig } from '@/blocks/types'
 import { isEmptyStyle, styleToCssText } from '@/blocks/block-style'
+import { donutSegment, toSlices } from '@/blocks/chart/chart-data'
 import { mapEmbedUrl, mapQuery } from '@/blocks/map/query'
+import { videoEmbedUrl } from '@/blocks/video/embed'
 import { whatsappHref, whatsappNumber } from '@/blocks/whatsapp/link'
 import { resolveTheme } from '@/lib/theme-presets'
 
@@ -1170,6 +1172,259 @@ ${logosHtml}
 // Block dispatcher
 // ---------------------------------------------------------------------------
 
+/**
+ * The About section's Markdown, as HTML.
+ *
+ * Written out by hand rather than with a Markdown library: the editor's own
+ * renderer supports exactly headings, bold, italics, lists and paragraphs, and
+ * the published page has to match it rather than support more. Everything is
+ * escaped before any formatting is applied, so a stray angle bracket in
+ * someone's About text cannot become markup.
+ */
+function renderContent(block: BlockConfig): string {
+  const body = String(block.props.body ?? '').trim()
+  if (!body) return ''
+
+  const inline = (text: string) =>
+    escapeHtml(text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*]+?)\*/g, '$1<em>$2</em>')
+
+  const html: string[] = []
+  let list: string[] = []
+
+  const flush = () => {
+    if (list.length === 0) return
+    html.push(`<ul class="list-disc list-inside space-y-1 mb-4 text-text-1">${list.join('')}</ul>`)
+    list = []
+  }
+
+  for (const line of body.split('\n')) {
+    const trimmed = line.trim()
+
+    if (trimmed.startsWith('- ')) {
+      list.push(`<li>${inline(trimmed.slice(2))}</li>`)
+      continue
+    }
+    flush()
+
+    if (!trimmed) continue
+    if (trimmed.startsWith('### ')) {
+      html.push(`<h3 class="text-lg font-semibold mt-6 mb-2">${inline(trimmed.slice(4))}</h3>`)
+    } else if (trimmed.startsWith('## ')) {
+      html.push(`<h2 class="text-2xl font-bold tracking-tight mt-8 mb-3">${inline(trimmed.slice(3))}</h2>`)
+    } else if (trimmed.startsWith('# ')) {
+      html.push(`<h1 class="text-3xl font-bold tracking-tight mt-8 mb-3">${inline(trimmed.slice(2))}</h1>`)
+    } else {
+      html.push(`<p class="text-text-1 leading-relaxed mb-4">${inline(trimmed)}</p>`)
+    }
+  }
+  flush()
+
+  const width =
+    block.variant === 'columns' ? 'max-w-4xl md:columns-2 md:gap-10' : 'max-w-2xl'
+  const highlight =
+    block.variant === 'highlight'
+      ? ' rounded-xl border border-border-default bg-bg-2 p-6 md:p-8'
+      : ''
+
+  return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    <div class="${width} mx-auto${highlight}">
+${html.join('\n')}
+    </div>
+  </section>`
+}
+
+function renderBanner(block: BlockConfig): string {
+  const text = String(block.props.text ?? '')
+  if (!text) return ''
+  const linkText = String(block.props.linkText ?? '')
+  const linkUrl = String(block.props.linkUrl ?? '#')
+
+  const link = linkText
+    ? ` <a href="${escapeHtml(linkUrl)}" class="underline font-medium">${escapeHtml(linkText)}</a>`
+    : ''
+
+  if (block.variant === 'ribbon') {
+    return `  <div class="px-6 py-3 text-center text-sm" style="background:var(--brand, #6366f1);color:#fff">${escapeHtml(text)}${link}</div>`
+  }
+
+  return `  <div class="px-6 py-2.5 text-center text-[13px] border-b border-border-default bg-bg-2 text-text-1">${escapeHtml(text)}${link}</div>`
+}
+
+function renderDivider(block: BlockConfig): string {
+  const height = Number(block.props.height) || 60
+  const width = String(block.props.width ?? 'full')
+  const maxWidth = width === 'narrow' ? '128px' : width === 'centered' ? '320px' : '100%'
+
+  if (block.variant === 'space') {
+    return `  <div style="height:${height}px" aria-hidden="true"></div>`
+  }
+
+  if (block.variant === 'dots') {
+    const dot =
+      '<span style="width:6px;height:6px;border-radius:999px;background:currentColor;opacity:.35"></span>'
+    return `  <div style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:${height}px" aria-hidden="true">${dot.repeat(3)}</div>`
+  }
+
+  return `  <div style="display:flex;align-items:center;justify-content:center;min-height:${height}px" aria-hidden="true">
+    <div style="width:100%;max-width:${maxWidth};margin:0 auto;border-top:1px solid currentColor;opacity:.15"></div>
+  </div>`
+}
+
+function renderVideo(block: BlockConfig): string {
+  const url = String(block.props.url ?? '')
+  const title = String(block.props.title ?? '')
+  const embed = videoEmbedUrl(url, block.variant)
+  // A link we cannot embed would publish as an empty box; leave it out.
+  if (!embed) return ''
+
+  return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    ${title ? `<h2 class="text-xl font-semibold text-center mb-4">${escapeHtml(title)}</h2>` : ''}
+    <div class="max-w-4xl mx-auto" style="aspect-ratio:16/9;border-radius:12px;overflow:hidden">
+      <iframe src="${escapeHtml(embed)}" title="${escapeHtml(title || 'Video')}" class="w-full h-full" style="border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </section>`
+}
+
+function renderGallery(block: BlockConfig): string {
+  const title = String(block.props.title ?? '')
+  const images = Array.isArray(block.props.images)
+    ? (block.props.images as { src?: string; alt?: string; caption?: string }[])
+    : []
+
+  const cells = images
+    .filter((image) => image.src)
+    .map(
+      (image) =>
+        `<figure style="border-radius:12px;overflow:hidden;margin:0"><img src="${escapeHtml(image.src ?? '')}" alt="${escapeHtml(image.alt ?? '')}" loading="lazy" class="w-full h-full object-cover" style="aspect-ratio:4/3" />${image.caption ? `<figcaption class="text-[11.5px] text-text-2 mt-1.5">${escapeHtml(image.caption)}</figcaption>` : ''}</figure>`,
+    )
+    .join('')
+
+  if (!cells) return ''
+
+  return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    ${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-center mb-8">${escapeHtml(title)}</h2>` : ''}
+    <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">${cells}</div>
+  </section>`
+}
+
+function renderImage(block: BlockConfig): string {
+  const src = String(block.props.src ?? '')
+  const alt = String(block.props.alt ?? '')
+  const title = String(block.props.title ?? '')
+  const subtitle = String(block.props.subtitle ?? '')
+  const images = Array.isArray(block.props.images)
+    ? (block.props.images as { src?: string; alt?: string }[])
+    : []
+
+  const picture = (source: string, description: string, extra = '') =>
+    `<img src="${escapeHtml(source)}" alt="${escapeHtml(description)}" loading="lazy" class="w-full h-full object-cover"${extra} />`
+
+  if (block.variant === 'grid') {
+    const cells = images
+      .filter((image) => image.src)
+      .map(
+        (image) =>
+          `<div style="aspect-ratio:4/3;border-radius:12px;overflow:hidden">${picture(image.src ?? '', image.alt ?? '')}</div>`,
+      )
+      .join('')
+    if (!cells) return ''
+    return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    ${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-center mb-8">${escapeHtml(title)}</h2>` : ''}
+    <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">${cells}</div>
+  </section>`
+  }
+
+  if (!src) return ''
+
+  if (block.variant === 'side-by-side') {
+    const imageFirst = block.props.imageSide !== 'right'
+    const photo = `<div style="aspect-ratio:4/3;border-radius:16px;overflow:hidden">${picture(src, alt)}</div>`
+    const words = `<div>${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight mb-3">${escapeHtml(title)}</h2>` : ''}${subtitle ? `<p class="text-text-2 leading-relaxed">${escapeHtml(subtitle)}</p>` : ''}</div>`
+
+    return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+      ${imageFirst ? photo + words : words + photo}
+    </div>
+  </section>`
+  }
+
+  // hero-image (default) — full width above whatever follows
+  return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    ${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-center mb-3">${escapeHtml(title)}</h2>` : ''}
+    ${subtitle ? `<p class="text-center text-text-2 mb-8">${escapeHtml(subtitle)}</p>` : ''}
+    <div class="max-w-5xl mx-auto" style="aspect-ratio:16/9;border-radius:16px;overflow:hidden">${picture(src, alt)}</div>
+  </section>`
+}
+
+function renderChart(block: BlockConfig): string {
+  const slices = toSlices(block.props.items) as (ReturnType<typeof toSlices>[number] & {
+    barFraction: number
+  })[]
+  if (slices.length === 0) return ''
+
+  const title = String(block.props.title ?? '')
+  const subtitle = String(block.props.subtitle ?? '')
+  const heading = `${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-center mb-2">${escapeHtml(title)}</h2>` : ''}${subtitle ? `<p class="text-center text-sm text-text-2 mb-8">${escapeHtml(subtitle)}</p>` : ''}`
+
+  if (block.variant === 'donut') {
+    const starts = slices.reduce<number[]>((offsets, _slice, index) => {
+      offsets.push(index === 0 ? 0 : offsets[index - 1] + slices[index - 1].fraction)
+      return offsets
+    }, [])
+
+    const paths = slices
+      .map((slice, index) =>
+        slice.fraction <= 0
+          ? ''
+          : `<path d="${donutSegment(starts[index], starts[index] + slice.fraction)}" fill="${escapeHtml(slice.color)}" />`,
+      )
+      .join('')
+
+    const key = slices
+      .map(
+        (slice) =>
+          `<li class="flex items-center gap-2.5 text-sm"><span style="width:10px;height:10px;border-radius:2px;background:${escapeHtml(slice.color)}"></span><span class="text-text-1 flex-1">${escapeHtml(slice.label)}</span><span class="font-semibold">${escapeHtml(slice.display)}</span></li>`,
+      )
+      .join('')
+
+    return `  <section class="px-6 md:px-10 py-16">
+    ${heading}
+    <div class="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8 justify-center">
+      <svg viewBox="0 0 100 100" style="width:176px;height:176px" role="img" aria-label="${escapeHtml(title || 'Chart')}">${paths}</svg>
+      <ul class="space-y-2 flex-1">${key}</ul>
+    </div>
+  </section>`
+  }
+
+  if (block.variant === 'columns') {
+    const columns = slices
+      .map(
+        (slice) =>
+          `<div style="flex:1;max-width:96px;display:flex;flex-direction:column;align-items:center;gap:8px"><span class="text-sm font-bold">${escapeHtml(slice.display)}</span><div style="width:100%;height:${Math.max(4, slice.barFraction * 100)}%;background:${escapeHtml(slice.color)};border-radius:8px 8px 0 0"></div><span class="text-[11.5px] text-text-2 text-center">${escapeHtml(slice.label)}</span></div>`,
+      )
+      .join('')
+
+    return `  <section class="px-6 md:px-10 py-16">
+    ${heading}
+    <div class="max-w-3xl mx-auto" style="display:flex;align-items:flex-end;justify-content:center;gap:16px;height:224px">${columns}</div>
+  </section>`
+  }
+
+  const bars = slices
+    .map(
+      (slice) =>
+        `<div><div class="flex items-baseline justify-between" style="margin-bottom:6px"><span class="text-sm text-text-1">${escapeHtml(slice.label)}</span><span class="text-sm font-semibold">${escapeHtml(slice.display)}</span></div><div style="height:10px;border-radius:999px;background:var(--bg-3, rgba(127,127,127,.2));overflow:hidden"><div style="height:100%;width:${Math.max(2, slice.barFraction * 100)}%;background:${escapeHtml(slice.color)};border-radius:999px"></div></div></div>`,
+    )
+    .join('')
+
+  return `  <section class="px-6 md:px-10 py-16">
+    ${heading}
+    <div class="max-w-2xl mx-auto space-y-4">${bars}</div>
+  </section>`
+}
+
 function renderMap(block: BlockConfig): string {
   const title = String(block.props.title ?? '')
   const address = String(block.props.address ?? '')
@@ -1258,6 +1513,20 @@ function renderBlockContent(block: BlockConfig): string {
       return renderMap(block)
     case 'whatsapp':
       return renderWhatsapp(block)
+    case 'chart':
+      return renderChart(block)
+    case 'content':
+      return renderContent(block)
+    case 'image':
+      return renderImage(block)
+    case 'video':
+      return renderVideo(block)
+    case 'gallery':
+      return renderGallery(block)
+    case 'divider':
+      return renderDivider(block)
+    case 'banner':
+      return renderBanner(block)
     default:
       return `  <!-- Unknown block type: ${escapeHtml(block.type)} -->`
   }

@@ -3,6 +3,9 @@ import { exportSiteToHTML } from './export-html'
 import { buildFromDefinition } from '@/templates/build'
 import { templateCards } from '@/templates/catalogue'
 import { splitHeaderFooter, syncMenu } from '@/store/site-shape'
+import { blockMetadata } from './block-metadata'
+import { newId } from './id'
+import type { SiteConfig } from '@/blocks/types'
 
 /** A published site, shaped the way the editor shapes it before publishing. */
 function publishedHtml(id = 'blackpine', options?: Parameters<typeof exportSiteToHTML>[1]) {
@@ -70,6 +73,29 @@ describe('exportSiteToHTML', () => {
     const after = exportSiteToHTML(config)
 
     expect(after.length).toBeLessThan(before.length)
+  })
+
+  it('knows how to publish every widget in the library', () => {
+    // The failure this guards against is quiet and nasty: a widget appears in
+    // the editor, the owner builds a page around it, and it is simply missing
+    // from the published site.
+    for (const meta of blockMetadata) {
+      const config: SiteConfig = {
+        name: 'Coverage',
+        blocks: [
+          {
+            id: newId('block'),
+            type: meta.type,
+            variant: meta.variants[0],
+            props: { ...meta.defaultProps },
+          },
+        ],
+      }
+      const html = exportSiteToHTML(config)
+      expect(html, `${meta.type} is not rendered when publishing`).not.toContain(
+        `Unknown block type: ${meta.type}`,
+      )
+    }
   })
 
   it('renders every template without throwing', () => {
