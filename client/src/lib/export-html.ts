@@ -1,7 +1,7 @@
 import type { SiteConfig, BlockConfig } from '@/blocks/types'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { isEmptyStyle, styleToCssText } from '@/blocks/block-style'
+import { isEmptyStyle, styleToRules } from '@/blocks/block-style'
 import { getIcon } from '@/blocks/icons'
 import { donutSegment, toSlices } from '@/blocks/chart/chart-data'
 import { todayIndex } from '@/blocks/hours/hours-data'
@@ -1540,15 +1540,23 @@ function withBlockStyle(block: BlockConfig, html: string): string {
   if (block.style?.hidden) return ''
   if (isEmptyStyle(block.style)) return html
 
-  const outer = styleToCssText({ ...block.style, width: undefined })
-  const inner = styleToCssText({ width: block.style?.width })
+  // Styling goes in a stylesheet keyed by class rather than inline, because
+  // inline styles cannot carry media queries and the tablet and phone
+  // overrides need them.
+  return `  <div class="${sectionClass(block)}">\n${html}\n  </div>`
+}
 
-  const body = inner ? `  <div style="${escapeHtml(inner)}">
-${html}
-  </div>` : html
-  return outer ? `  <div style="${escapeHtml(outer)}">
-${body}
-  </div>` : body
+/** A class per styled section, used to hang its rules off. */
+function sectionClass(block: BlockConfig): string {
+  return `s-${block.id.replace(/[^a-zA-Z0-9_-]/g, '')}`
+}
+
+/** Every styled section's rules, gathered into one stylesheet. */
+function sectionStyles(blocks: BlockConfig[]): string {
+  return blocks
+    .map((block) => styleToRules(block.style, `.${sectionClass(block)}`))
+    .filter(Boolean)
+    .join('\n')
 }
 
 function renderBlock(block: BlockConfig): string {
@@ -1676,6 +1684,7 @@ export function exportSiteToHTML(config: SiteConfig, options?: ExportSiteOptions
   const hasFaq = pageBlocks.some((b) => b.type === 'faq')
 
   const blocksHtml = pageBlocks.map((b) => renderBlock(b)).join('\n\n')
+  const sectionCss = sectionStyles(pageBlocks)
 
   const pageTitle = (settings?.seoTitle || settings?.siteName || config.name || 'Website').trim()
   const pageDescription = (settings?.seoDescription || settings?.siteDescription || '').trim()
@@ -1854,6 +1863,9 @@ ${ogDescriptionMeta}${ogImageMeta}${faviconLink}
     .faq-chevron {
       transition: transform 0.2s ease;
     }
+
+    /* Per-section styling, including the tablet and phone overrides. */
+${sectionCss}
   </style>
 ${gaScript}
 ${posthogScript}

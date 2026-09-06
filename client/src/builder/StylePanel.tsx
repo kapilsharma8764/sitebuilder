@@ -1,7 +1,8 @@
-import { RotateCcw } from 'lucide-react'
-import type { BlockConfig, BlockStyle } from '@/blocks/types'
-import { isEmptyStyle } from '@/blocks/block-style'
+import { Monitor, RotateCcw, Smartphone, Tablet } from 'lucide-react'
+import type { BlockConfig, BlockStyle, Breakpoint, StyleValues } from '@/blocks/types'
+import { effectiveStyle, hasOverrides, isEmptyStyle } from '@/blocks/block-style'
 import { useConfigStore } from '@/store/configStore'
+import { useEditorStore } from '@/store/editorStore'
 import { FieldRenderer } from './fields/FieldRenderer'
 import type { Field } from '@/widgets/field-types'
 
@@ -74,7 +75,13 @@ const fields: Record<string, Field> = {
   },
 }
 
-const GROUPS: { title: string; keys: (keyof BlockStyle)[] }[] = [
+const DEVICES: { value: Breakpoint; label: string; icon: typeof Monitor }[] = [
+  { value: 'desktop', label: 'Desktop', icon: Monitor },
+  { value: 'tablet', label: 'Tablet', icon: Tablet },
+  { value: 'mobile', label: 'Phone', icon: Smartphone },
+]
+
+const GROUPS: { title: string; keys: (keyof StyleValues)[] }[] = [
   { title: 'Size and space', keys: ['width', 'paddingTop', 'paddingBottom', 'radius'] },
   { title: 'Colour', keys: ['background', 'backgroundImage', 'textColor'] },
   { title: 'Text', keys: ['textAlign', 'fontFamily', 'fontScale'] },
@@ -83,6 +90,10 @@ const GROUPS: { title: string; keys: (keyof BlockStyle)[] }[] = [
 
 export function StylePanel({ block }: { block: BlockConfig | undefined }) {
   const updateBlock = useConfigStore((s) => s.updateBlock)
+  // Tied to the canvas's own device switch, so the preview always shows the
+  // width being edited. Changing it here changes the canvas too.
+  const device = useEditorStore((s) => s.viewport)
+  const setDevice = useEditorStore((s) => s.setViewport)
 
   if (!block) {
     return (
@@ -96,27 +107,77 @@ export function StylePanel({ block }: { block: BlockConfig | undefined }) {
   }
 
   const style = block.style ?? {}
+  // What this device actually shows, including anything inherited from wider
+  // screens — so a control is never blank when the section clearly has a value.
+  const shown = effectiveStyle(style, device)
 
-  function set(key: keyof BlockStyle, value: unknown) {
+  function set(key: keyof StyleValues, value: unknown) {
     // An emptied control removes the override rather than storing a blank,
     // so the section goes back to the design's own value.
-    const next: BlockStyle = { ...style, [key]: value === '' ? undefined : value }
+    const cleaned = value === '' ? undefined : value
+
+    const next: BlockStyle =
+      device === 'desktop'
+        ? { ...style, [key]: cleaned }
+        : { ...style, [device]: { ...(style[device] ?? {}), [key]: cleaned } }
+
     updateBlock(block!.id, { style: next })
+  }
+
+  function clearDevice() {
+    if (device === 'desktop') {
+      updateBlock(block!.id, { style: undefined })
+      return
+    }
+    updateBlock(block!.id, { style: { ...style, [device]: undefined } })
   }
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="px-3 py-2.5 border-b border-border-default flex items-center justify-between gap-2">
-        <p className="text-[11.5px] font-semibold text-text-0">Section style</p>
-        {!isEmptyStyle(block.style) && (
-          <button
-            type="button"
-            onClick={() => updateBlock(block.id, { style: undefined })}
-            className="flex items-center gap-1 text-[10.5px] text-text-3 hover:text-text-0 transition-colors"
-          >
-            <RotateCcw size={10} />
-            Reset
-          </button>
+      <div className="px-3 py-2.5 border-b border-border-default">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11.5px] font-semibold text-text-0">Section style</p>
+          {(device === 'desktop' ? !isEmptyStyle(block.style) : hasOverrides(block.style, device)) && (
+            <button
+              type="button"
+              onClick={clearDevice}
+              className="flex items-center gap-1 text-[10.5px] text-text-3 hover:text-text-0 transition-colors"
+            >
+              <RotateCcw size={10} />
+              {device === 'desktop' ? 'Reset all' : 'Clear this size'}
+            </button>
+          )}
+        </div>
+
+        <div className="mt-2 flex rounded-lg border border-border-default overflow-hidden">
+          {DEVICES.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setDevice(value)}
+              title={`Style for ${label.toLowerCase()}`}
+              className={`relative flex-1 flex items-center justify-center gap-1 py-1.5 text-[10.5px] transition-colors ${
+                device === value
+                  ? 'bg-bg-3 text-text-0'
+                  : 'text-text-3 hover:text-text-1 hover:bg-bg-2'
+              }`}
+            >
+              <Icon size={11} />
+              {label}
+              {/* A dot marks a size that has changes of its own, so overrides
+                  are not hidden behind a tab nobody opens. */}
+              {hasOverrides(block.style, value) && (
+                <span className="absolute top-1 right-1.5 w-1 h-1 rounded-full bg-brand" />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {device !== 'desktop' && (
+          <p className="mt-1.5 text-[10px] text-text-3 leading-snug">
+            Changes here apply to {device === 'tablet' ? 'tablets' : 'phones'} only. Anything
+            left alone follows the wider screen.
+          </p>
         )}
       </div>
 
@@ -129,7 +190,7 @@ export function StylePanel({ block }: { block: BlockConfig | undefined }) {
             <FieldRenderer
               key={key}
               field={fields[key]}
-              value={style[key] ?? ''}
+              value={shown[key] ?? ''}
               onChange={(value) => set(key, value)}
             />
           ))}

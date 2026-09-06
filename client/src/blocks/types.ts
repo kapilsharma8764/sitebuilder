@@ -35,7 +35,11 @@ export type BlockVariant = string
  * to the section you have selected. Every value is optional, and an absent one
  * means "leave the widget's own design alone".
  */
-export interface BlockStyle {
+/**
+ * The style values a section can carry. Every one is optional; an absent value
+ * means "leave the widget's own design alone".
+ */
+export interface StyleValues {
   /** How wide the content runs: full bleed, centred column, or narrow. */
   width?: 'full' | 'centered' | 'narrow'
   paddingTop?: number
@@ -51,6 +55,21 @@ export interface BlockStyle {
   /** Hides the section without deleting it. */
   hidden?: boolean
 }
+
+/**
+ * A section's styling, with optional overrides for narrower screens.
+ *
+ * The base values apply everywhere; `tablet` and `mobile` change only what
+ * they mention, so setting a smaller heading on a phone does not mean
+ * restating the background and spacing as well.
+ */
+export interface BlockStyle extends StyleValues {
+  tablet?: StyleValues
+  mobile?: StyleValues
+}
+
+/** Which screen width is being edited or drawn. */
+export type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 
 export interface BlockConfig {
   id: string

@@ -1,5 +1,6 @@
 import type { BlockConfig } from './types'
-import { isEmptyStyle, styleToCss, widthCss } from './block-style'
+import { effectiveStyle, isEmptyStyle, styleToCss, widthCss } from './block-style'
+import { useEditorStore } from '@/store/editorStore'
 import { Component, type ReactNode } from 'react'
 
 import { NavbarBlock } from './navbar/NavbarBlock'
@@ -91,6 +92,10 @@ const blockRenderers: Record<string, React.ComponentType<{ block: BlockConfig }>
 
 export function RenderBlock({ block }: { block: BlockConfig }): ReactNode {
   const Renderer = blockRenderers[block.type] || PlaceholderBlock
+  // The canvas simulates a device by width, so the styling that applies is
+  // decided here rather than by a media query — what is on screen is then
+  // exactly what that device gets.
+  const viewport = useEditorStore((s) => s.viewport)
 
   const content = (
     <BlockErrorBoundary blockType={block.type}>
@@ -103,8 +108,9 @@ export function RenderBlock({ block }: { block: BlockConfig }): ReactNode {
   if (isEmptyStyle(block.style)) return content
   if (block.style?.hidden) return null
 
-  const outer = styleToCss(block.style)
-  const inner = widthCss(block.style)
+  const values = effectiveStyle(block.style, viewport)
+  const outer = styleToCss(values)
+  const inner = widthCss(values)
 
   return (
     <div style={outer}>
