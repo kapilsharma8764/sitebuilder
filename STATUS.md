@@ -77,7 +77,6 @@ npm run dev
 | Resize / Reposition / Style / font | ✅ (Style tab) |
 | Publish → live link | ✅ |
 | CRM (leads) | ✅ Enquiries page |
-
 | **Graph / Chart** widget | ✅ bars, columns, donut |
 
 **Bacha hua:** sirf logo ka cropping tool (upload ho jaata hai, crop nahi).
