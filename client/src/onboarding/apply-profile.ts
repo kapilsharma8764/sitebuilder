@@ -25,6 +25,9 @@ function applyToBlock(block: BlockConfig, profile: BusinessProfile): BlockConfig
   switch (block.type) {
     case 'navbar':
       props.logo = pick(profile.name, props.logo)
+      // The logo was collected on the promise of appearing on the site; the
+      // header is where people look for it.
+      if (profile.logo.trim()) props.logoImage = profile.logo.trim()
       break
 
     case 'hero':

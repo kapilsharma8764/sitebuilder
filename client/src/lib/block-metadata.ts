@@ -16,7 +16,12 @@ export const blockMetadata: BlockMeta[] = [
     description: 'Navigation bar with logo, links, and CTA',
     category: 'Navigation',
     variants: ['default', 'centered'],
-    defaultProps: { logo: 'Brand', links: ['Features', 'Pricing', 'About'], ctaText: 'Get Started' },
+    defaultProps: {
+      logo: 'Brand',
+      logoImage: '',
+      links: ['Home', 'About', 'Services', 'Contact'],
+      ctaText: 'Get in touch',
+    },
   },
   {
     type: 'hero',

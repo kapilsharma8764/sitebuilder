@@ -3,8 +3,38 @@ import { Menu } from 'lucide-react'
 
 interface NavbarProps {
   logo: string
+  /** The business's own logo. Shown instead of the name when there is one. */
+  logoImage?: string
   links: string[]
   ctaText: string
+}
+
+/**
+ * The business's mark in the header.
+ *
+ * A logo uploaded during setup belongs here — it was collected on the promise
+ * of appearing on the site, and until now the header only ever showed text
+ * beside a generic coloured dot.
+ */
+function Brand({ logo, logoImage }: { logo: string; logoImage?: string }) {
+  if (logoImage) {
+    return (
+      <img
+        src={logoImage}
+        alt={logo}
+        className="h-8 w-auto max-w-[180px] object-contain"
+      />
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
+        <div className="w-4 h-4 rounded-full bg-brand" />
+      </div>
+      <span className="font-semibold text-[15px] text-text-0 tracking-tight">{logo}</span>
+    </div>
+  )
 }
 
 function NavbarDefault({ props }: { props: NavbarProps }) {
@@ -13,12 +43,7 @@ function NavbarDefault({ props }: { props: NavbarProps }) {
   return (
     <nav className="px-6 @md:px-10 py-4 flex items-center justify-between">
       {/* Logo */}
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full bg-brand" />
-        </div>
-        <span className="font-semibold text-[15px] text-text-0 tracking-tight">{logo}</span>
-      </div>
+      <Brand logo={logo} logoImage={props.logoImage} />
 
       {/* Desktop nav links */}
       <div className="hidden @2xl:flex items-center gap-6">
@@ -63,12 +88,7 @@ function NavbarCentered({ props }: { props: NavbarProps }) {
       </div>
 
       {/* Center logo */}
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full bg-brand" />
-        </div>
-        <span className="font-semibold text-[15px] text-text-0 tracking-tight">{logo}</span>
-      </div>
+      <Brand logo={logo} logoImage={props.logoImage} />
 
       {/* Right links + CTA */}
       <div className="hidden @2xl:flex items-center gap-6 flex-1 justify-end">

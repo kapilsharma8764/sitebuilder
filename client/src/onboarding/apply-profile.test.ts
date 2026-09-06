@@ -66,6 +66,21 @@ describe('applyProfile', () => {
     expect(after.name).toBe(before.name)
   })
 
+  it('puts an uploaded logo in the header', () => {
+    // The flow asks for a logo and says it will appear on the site. If it does
+    // not reach the header, the whole step was a waste of the owner's time.
+    const withLogo = { ...filled, logo: 'https://example.com/logo.png' }
+    const config = applyProfile(build('northline'), withLogo)
+    const navbar = blocksOf(config).find((b) => b.type === 'navbar')
+    expect(navbar?.props.logoImage).toBe(withLogo.logo)
+  })
+
+  it('leaves the header alone when no logo was uploaded', () => {
+    const config = applyProfile(build('northline'), filled)
+    const navbar = blocksOf(config).find((b) => b.type === 'navbar')
+    expect(navbar?.props.logoImage ?? '').toBe('')
+  })
+
   it('never drops or reorders blocks', () => {
     for (const meta of templateCards) {
       const before = buildFromDefinition(meta)

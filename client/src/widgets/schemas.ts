@@ -25,6 +25,11 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
         title: 'Content',
         fields: {
           logo: { kind: 'text', label: 'Business name' },
+          logoImage: {
+            kind: 'image',
+            label: 'Logo',
+            help: 'Shown instead of the name when set.',
+          },
           links: { kind: 'strings', label: 'Menu items', addLabel: 'Add menu item' },
           ctaText: { kind: 'text', label: 'Button', help: 'Leave empty to hide the button.' },
         },
