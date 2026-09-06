@@ -23,6 +23,7 @@ import { VideoBlock } from './video/VideoBlock'
 import { GalleryBlock } from './gallery/GalleryBlock'
 import { MapBlock } from './map/MapBlock'
 import { WhatsappBlock } from './whatsapp/WhatsappBlock'
+import { ChartBlock } from './chart/ChartBlock'
 
 // Error boundary for individual blocks
 class BlockErrorBoundary extends Component<
@@ -83,6 +84,7 @@ const blockRenderers: Record<string, React.ComponentType<{ block: BlockConfig }>
   gallery: GalleryBlock,
   map: MapBlock,
   whatsapp: WhatsappBlock,
+  chart: ChartBlock,
 }
 
 export function RenderBlock({ block }: { block: BlockConfig }): ReactNode {

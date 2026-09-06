@@ -20,6 +20,7 @@ export type BlockType =
   | 'gallery'
   | 'map'
   | 'whatsapp'
+  | 'chart'
 
 export type BlockVariant = string
 

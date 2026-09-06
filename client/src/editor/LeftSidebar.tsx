@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Search, Layout, Type, Grid3X3, DollarSign, Megaphone, PanelBottom, MessageSquare, BarChart3, HelpCircle, Users, Mail, Newspaper, Image, Plus, Minus, Flag, FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle } from 'lucide-react'
+import { Search, Layout, Type, Grid3X3, DollarSign, Megaphone, PanelBottom, MessageSquare, BarChart3, HelpCircle, Users, Mail, Newspaper, Image, Plus, Minus, Flag, FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle, PieChart } from 'lucide-react'
 import { LayersPanel } from './LayersPanel'
 import { PagesPanel } from '@/builder/PagesPanel'
 import { useConfigStore } from '@/store/configStore'
@@ -15,7 +15,7 @@ const blockIcons: Record<BlockType, typeof Layout> = {
   stats: BarChart3, faq: HelpCircle, team: Users, contact: Mail,
   newsletter: Newspaper, logocloud: Image, divider: Minus, banner: Flag,
   content: FileText, image: ImageIcon, video: Play, gallery: GalleryHorizontalEnd,
-  map: MapPin, whatsapp: MessageCircle,
+  map: MapPin, whatsapp: MessageCircle, chart: PieChart,
 }
 
 function ComponentsPanel() {

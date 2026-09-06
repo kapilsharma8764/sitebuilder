@@ -174,6 +174,22 @@ export const blockMetadata: BlockMeta[] = [
     },
   },
   {
+    type: 'chart',
+    label: 'Chart',
+    description: 'Numbers drawn as bars, columns or a donut',
+    category: 'Content',
+    variants: ['bars', 'columns', 'donut'],
+    defaultProps: {
+      title: 'Where our work comes from',
+      subtitle: 'A breakdown of last year',
+      items: [
+        { label: 'Repeat customers', value: '62%', color: '' },
+        { label: 'Referrals', value: '24%', color: '' },
+        { label: 'Online enquiries', value: '14%', color: '' },
+      ],
+    },
+  },
+  {
     type: 'divider',
     label: 'Divider',
     description: 'Visual separator between sections',

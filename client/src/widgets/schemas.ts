@@ -633,6 +633,48 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
     ],
   },
 
+  chart: {
+    groups: [
+      {
+        title: 'Content',
+        fields: {
+          title: { kind: 'text', label: 'Heading' },
+          subtitle: { kind: 'text', label: 'Supporting text' },
+          items: {
+            kind: 'repeater',
+            label: 'Numbers',
+            addLabel: 'Add a number',
+            titleKey: 'label',
+            fields: {
+              label: { kind: 'text', label: 'What it is', placeholder: 'Repeat customers' },
+              value: {
+                kind: 'text',
+                label: 'Number',
+                placeholder: '62%',
+                help: 'Write it however you say it — 62%, 1,200 or ₹4.5L all work.',
+              },
+              color: { kind: 'color', label: 'Bar colour' },
+            },
+          },
+        },
+      },
+      {
+        title: 'Layout',
+        fields: {
+          variant: {
+            kind: 'select',
+            label: 'Style',
+            options: [
+              { value: 'bars', label: 'Bars across' },
+              { value: 'columns', label: 'Columns standing up' },
+              { value: 'donut', label: 'Donut with a key' },
+            ],
+          },
+        },
+      },
+    ],
+  },
+
   divider: {
     groups: [
       {
