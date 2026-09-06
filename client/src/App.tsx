@@ -5,6 +5,7 @@ import { Landing } from './routes/Landing'
 import { CreateWebsite } from './routes/CreateWebsite'
 import { Templates } from './routes/Templates'
 import { Dashboard } from './routes/Dashboard'
+import { Leads } from './routes/Leads'
 import { Editor } from './routes/Editor'
 import { Components } from './routes/Components'
 import { Deploy } from './routes/Deploy'
@@ -22,6 +23,7 @@ function AppRoutes() {
         <Route path="create" element={<CreateWebsite />} />
         <Route path="templates" element={<Templates />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="leads" element={<Leads />} />
         <Route path="new" element={<Navigate to="/create" replace />} />
         <Route path="editor" element={<Editor />} />
         <Route path="components" element={<Components />} />

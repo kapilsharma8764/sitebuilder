@@ -1,0 +1,15 @@
+[
+  {
+    "id": "f104a97d-7217-40c8-be64-0ad56247ad4f",
+    "createdAt": "2026-09-06T18:46:16.826Z",
+    "updatedAt": "2026-09-06T18:46:16.826Z",
+    "siteId": "a621493c-ed48-42f6-ac41-21fe633f0c71",
+    "slug": "iron-yard-fitness",
+    "name": "Ramesh",
+    "email": "",
+    "phone": "98765 43210",
+    "message": "Fees kitni hai?",
+    "extra": {},
+    "status": "new"
+  }
+]

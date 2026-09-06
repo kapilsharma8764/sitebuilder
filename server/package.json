@@ -1,0 +1,17 @@
+{
+  "name": "@sitebuilder/server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "API for saving sites, publishing them, and collecting enquiries.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

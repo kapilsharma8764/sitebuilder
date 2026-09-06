@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Pencil, Settings, Menu, X, Star } from 'lucide-react'
+import { Home, Inbox, LayoutDashboard, Pencil, Settings, Menu, X, Star } from 'lucide-react'
 import { useState } from 'react'
 
 const links = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/', label: 'Home', icon: Home },
+  { to: '/dashboard', label: 'Sites', icon: LayoutDashboard },
   { to: '/editor', label: 'Editor', icon: Pencil },
+  { to: '/leads', label: 'Enquiries', icon: Inbox },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -15,8 +17,12 @@ export function TopNav() {
     <header className="h-12 bg-bg-1 border-b border-border-default flex items-center px-4 gap-2 fixed top-0 left-0 right-0 z-50">
       {/* Logo */}
       <NavLink to="/" className="flex items-center gap-2 mr-6 select-none">
-        <svg viewBox="0 0 24 24" className="w-5 h-5">
-          <circle cx="12" cy="12" r="10" fill="#22c55e" />
+        <svg viewBox="0 0 32 32" className="w-5 h-5" aria-hidden="true">
+          <rect width="32" height="32" rx="7" fill="#0b0b0b" />
+          <rect x="7" y="7" width="18" height="4" rx="1.5" fill="#ffffff" />
+          <rect x="7" y="13.5" width="10.5" height="11.5" rx="1.5" fill="#6366f1" />
+          <rect x="19.5" y="13.5" width="5.5" height="5" rx="1.5" fill="#a855f7" />
+          <rect x="19.5" y="20" width="5.5" height="5" rx="1.5" fill="#a855f7" opacity="0.55" />
         </svg>
         <span className="font-display font-bold text-base text-text-0 tracking-tight">
           SiteBuilder

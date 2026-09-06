@@ -1,0 +1,44 @@
+[
+  {
+    "id": "b550958a-43ad-4279-8cf1-ef6f6ed728f5",
+    "createdAt": "2026-09-06T18:46:04.445Z",
+    "updatedAt": "2026-09-06T18:46:04.445Z",
+    "name": "Sharma Coaching Classes",
+    "config": {
+      "name": "Sharma Coaching Classes",
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "hero",
+          "variant": "centered",
+          "props": {}
+        }
+      ]
+    },
+    "profile": null,
+    "published": false,
+    "slug": null
+  },
+  {
+    "id": "a621493c-ed48-42f6-ac41-21fe633f0c71",
+    "createdAt": "2026-09-06T18:46:16.520Z",
+    "updatedAt": "2026-09-06T18:46:16.762Z",
+    "name": "Iron Yard Fitness",
+    "config": {
+      "name": "Iron Yard Fitness",
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "hero",
+          "variant": "centered",
+          "props": {}
+        }
+      ]
+    },
+    "profile": null,
+    "published": true,
+    "slug": "iron-yard-fitness",
+    "html": "<h1>v2</h1>",
+    "publishedAt": "2026-09-06T18:46:16.760Z"
+  }
+]

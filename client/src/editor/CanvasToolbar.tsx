@@ -12,12 +12,15 @@ import {
   Plus,
   HelpCircle,
   Download,
+  ExternalLink,
+  Rocket,
   Loader2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useEditorStore, type Viewport } from '@/store/editorStore'
 import { useConfigStore } from '@/store/configStore'
 import { pathFromName } from '@/store/site-shape'
+import { usePublish } from '@/builder/usePublish'
 import { useProjectsStore } from '@/store/projectsStore'
 import type { PageConfig } from '@/blocks/types'
 import { exportToHTML, downloadHTML } from '@/lib/export-html'
@@ -192,6 +195,7 @@ export function CanvasToolbar() {
   const config = useConfigStore((s) => s.config)
   const [showAddPage, setShowAddPage] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const { publish, busy: publishing, url: liveUrl } = usePublish()
 
   const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) : null
   const projectName = activeProject?.name || configName
@@ -363,17 +367,44 @@ export function CanvasToolbar() {
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="h-7 px-3 rounded-lg bg-brand text-bg-0 text-[11.5px] font-semibold hover:bg-brand/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+          title="Download the site as a single HTML file"
+          className="h-7 px-2.5 rounded-lg border border-border-default text-text-2 text-[11.5px] font-medium hover:text-text-0 hover:bg-bg-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
         >
           {exporting ? (
+            <Loader2 size={12} className="animate-spin" />
+          ) : (
+            <Download size={12} />
+          )}
+          <span className="hidden lg:inline">Export</span>
+        </button>
+
+        {liveUrl && (
+          <a
+            href={liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={liveUrl}
+            className="h-7 px-2.5 rounded-lg border border-border-default text-text-2 text-[11.5px] font-medium hover:text-text-0 hover:bg-bg-2 transition-all flex items-center gap-1.5"
+          >
+            <ExternalLink size={12} />
+            <span className="hidden lg:inline">View live</span>
+          </a>
+        )}
+
+        <button
+          onClick={publish}
+          disabled={publishing}
+          className="h-7 px-3 rounded-lg bg-gradient-to-r from-brand to-brand-2 text-white text-[11.5px] font-semibold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+        >
+          {publishing ? (
             <>
               <Loader2 size={12} className="animate-spin" />
-              <span>Exporting...</span>
+              <span>Publishing…</span>
             </>
           ) : (
             <>
-              <Download size={12} />
-              <span>Export</span>
+              <Rocket size={12} />
+              <span>{liveUrl ? 'Republish' : 'Publish'}</span>
             </>
           )}
         </button>

@@ -18,7 +18,19 @@ export interface ExportSiteSettings {
 
 export interface ExportSiteOptions {
   settings?: ExportSiteSettings
+  /**
+   * Where the published page should send enquiries. Without it the contact
+   * form still renders, but says so rather than pretending to send.
+   */
+  leadsEndpoint?: string
+  /** Identifies which site an enquiry came from, for the enquiry inbox. */
+  siteId?: string
 }
+
+// Where the contact form posts. Set for the duration of one export, because
+// the section renderers are plain functions rather than a class.
+let leadsEndpoint = ''
+let leadsSiteId = ''
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1049,21 +1061,26 @@ function renderContact(block: BlockConfig): string {
           <h2 class="text-2xl md:text-3xl font-bold tracking-tight mb-2">${title}</h2>
 ${subtitleHtml}
         </div>
-        <form onsubmit="return false" class="space-y-4">
+        <form class="space-y-4" data-enquiry-form data-endpoint="${escapeHtml(leadsEndpoint)}" data-site="${escapeHtml(leadsSiteId)}">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium">Name</label>
-              <input type="text" placeholder="Your name" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 transition-colors" />
+              <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium" for="enq-name">Name</label>
+              <input id="enq-name" name="name" type="text" required placeholder="Your name" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 transition-colors" />
             </div>
             <div>
-              <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium">Email</label>
-              <input type="email" placeholder="you@example.com" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 transition-colors" />
+              <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium" for="enq-phone">Phone</label>
+              <input id="enq-phone" name="phone" type="tel" placeholder="98765 43210" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 transition-colors" />
             </div>
           </div>
           <div>
-            <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium">Message</label>
-            <textarea rows="4" placeholder="How can we help?" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 resize-y transition-colors"></textarea>
+            <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium" for="enq-email">Email</label>
+            <input id="enq-email" name="email" type="email" placeholder="you@example.com" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 transition-colors" />
           </div>
+          <div>
+            <label class="block text-[11.5px] text-text-2 mb-1.5 font-medium" for="enq-message">Message</label>
+            <textarea id="enq-message" name="message" rows="4" placeholder="How can we help?" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 resize-y transition-colors"></textarea>
+          </div>
+          <p data-enquiry-status class="text-[12.5px] text-text-2" hidden></p>
           <button type="submit" class="w-full py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all flex items-center justify-center gap-2">
             ${SVG_SEND}
             Send Message
@@ -1255,6 +1272,57 @@ export function exportSiteToHTML(config: SiteConfig, options?: ExportSiteOptions
   const fonts = [theme.fontSans, theme.fontDisplay, theme.fontMono]
   const fontUrl = googleFontUrl(fonts)
   const settings = options?.settings
+  leadsEndpoint = options?.leadsEndpoint ?? ''
+  leadsSiteId = options?.siteId ?? ''
+
+  // Sends the enquiry and tells the visitor what happened. Kept small and
+  // dependency-free: this runs on the customer's published page.
+  const enquiryScript = `  <script>
+    document.querySelectorAll('[data-enquiry-form]').forEach(function (form) {
+      var status = form.querySelector('[data-enquiry-status]')
+      var button = form.querySelector('button[type="submit"]')
+
+      function say(text, ok) {
+        if (!status) return
+        status.hidden = false
+        status.textContent = text
+        status.style.color = ok ? '' : '#f87171'
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault()
+        var endpoint = form.dataset.endpoint
+        if (!endpoint) {
+          say('This form is not connected yet.', false)
+          return
+        }
+
+        var data = Object.fromEntries(new FormData(form).entries())
+        data.siteId = form.dataset.site || null
+        data.slug = location.pathname.split('/').filter(Boolean).pop() || null
+
+        if (button) { button.disabled = true }
+        say('Sending…', true)
+
+        fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+          .then(function (response) {
+            if (!response.ok) throw new Error('failed')
+            form.reset()
+            say('Thank you — we will get back to you shortly.', true)
+          })
+          .catch(function () {
+            say('Sorry, that did not send. Please call us instead.', false)
+          })
+          .finally(function () {
+            if (button) { button.disabled = false }
+          })
+      })
+    })
+  </script>`
 
   const hasFaq = config.blocks.some((b) => b.type === 'faq')
 
@@ -1445,6 +1513,7 @@ ${posthogScript}
 
 ${blocksHtml}
 ${faqScript}
+${enquiryScript}
 </body>
 </html>`
 }
