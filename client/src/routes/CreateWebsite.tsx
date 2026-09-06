@@ -11,6 +11,7 @@ import {
 } from '@/onboarding/profile'
 import { suggestAbout, suggestSlogans } from '@/onboarding/suggestions'
 import { ImageReadError, readImageAsDataUrl } from '@/onboarding/read-image'
+import { toSquare, trimEdges } from '@/onboarding/crop'
 
 /**
  * The Create Website flow: what kind of website, then the business details,
@@ -78,6 +79,25 @@ function LogoInput({
   const [reading, setReading] = useState(false)
   const inputId = `logo-${label.replace(/\s+/g, '-').toLowerCase()}`
 
+  /** Runs one of the cropping helpers over the logo already chosen. */
+  async function tidy(operation: (source: string) => Promise<string>, done: string) {
+    if (!value) return
+    setReading(true)
+    try {
+      const next = await operation(value)
+      if (next === value) {
+        toast('Nothing to change there')
+      } else {
+        onChange(next)
+        toast(done)
+      }
+    } catch {
+      toast.error('Could not change that image')
+    } finally {
+      setReading(false)
+    }
+  }
+
   async function pick(file: File | undefined) {
     if (!file) return
     setReading(true)
@@ -138,13 +158,33 @@ function LogoInput({
             />
 
             {value && (
-              <button
-                type="button"
-                onClick={() => onChange('')}
-                className="text-[11.5px] text-text-3 hover:text-status-red transition-colors"
-              >
-                Remove
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => void tidy(trimEdges, 'Edges trimmed')}
+                  disabled={reading}
+                  className="text-[11.5px] text-text-2 hover:text-text-0 transition-colors disabled:opacity-40"
+                  title="Cut away the empty border around the logo"
+                >
+                  Trim edges
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void tidy((src) => toSquare(src), 'Squared off')}
+                  disabled={reading}
+                  className="text-[11.5px] text-text-2 hover:text-text-0 transition-colors disabled:opacity-40"
+                  title="Fit the logo inside a square, keeping its proportions"
+                >
+                  Make square
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChange('')}
+                  className="text-[11.5px] text-text-3 hover:text-status-red transition-colors"
+                >
+                  Remove
+                </button>
+              </>
             )}
           </div>
 

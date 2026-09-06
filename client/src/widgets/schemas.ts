@@ -697,6 +697,34 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
     ],
   },
 
+  hours: {
+    groups: [
+      {
+        title: 'Content',
+        fields: {
+          title: { kind: 'text', label: 'Heading' },
+          rows: {
+            kind: 'repeater',
+            label: 'Days',
+            addLabel: 'Add a day',
+            titleKey: 'day',
+            fields: {
+              day: { kind: 'text', label: 'Day' },
+              hours: {
+                kind: 'text',
+                label: 'Hours',
+                placeholder: '9:00 AM - 7:00 PM',
+                help: 'Leave empty to show the day as closed.',
+              },
+            },
+          },
+          note: { kind: 'text', label: 'Note underneath' },
+          highlightToday: { kind: 'switch', label: "Mark today's row" },
+        },
+      },
+    ],
+  },
+
   divider: {
     groups: [
       {

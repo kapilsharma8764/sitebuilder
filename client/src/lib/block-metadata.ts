@@ -1,4 +1,5 @@
 import type { BlockType } from '@/blocks/types'
+import { defaultHours } from '@/blocks/hours/hours-data'
 
 export interface BlockMeta {
   type: BlockType
@@ -198,6 +199,19 @@ export const blockMetadata: BlockMeta[] = [
         { label: 'Referrals', value: '24%', color: '' },
         { label: 'Online enquiries', value: '14%', color: '' },
       ],
+    },
+  },
+  {
+    type: 'hours',
+    label: 'Opening hours',
+    description: 'A row per day, with today marked',
+    category: 'Contact',
+    variants: ['table'],
+    defaultProps: {
+      title: 'Opening hours',
+      note: 'Closed on public holidays.',
+      highlightToday: true,
+      rows: defaultHours,
     },
   },
   {

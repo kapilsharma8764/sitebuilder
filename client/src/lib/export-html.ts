@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { isEmptyStyle, styleToCssText } from '@/blocks/block-style'
 import { getIcon } from '@/blocks/icons'
 import { donutSegment, toSlices } from '@/blocks/chart/chart-data'
+import { todayIndex } from '@/blocks/hours/hours-data'
 import { mapEmbedUrl, mapQuery } from '@/blocks/map/query'
 import { videoEmbedUrl } from '@/blocks/video/embed'
 import { whatsappHref, whatsappNumber } from '@/blocks/whatsapp/link'
@@ -1401,6 +1402,36 @@ function renderImage(block: BlockConfig): string {
   </section>`
 }
 
+function renderHours(block: BlockConfig): string {
+  const rows = Array.isArray(block.props.rows)
+    ? (block.props.rows as { day?: string; hours?: string }[])
+    : []
+  if (rows.length === 0) return ''
+
+  const title = String(block.props.title ?? '')
+  const note = String(block.props.note ?? '')
+  const highlight = block.props.highlightToday !== false
+  const today = todayIndex()
+
+  const body = rows
+    .map((row, index) => {
+      const isToday = highlight && index === today
+      const closed = !String(row.hours ?? '').trim()
+      const background = isToday ? 'background:rgba(99,102,241,.1);' : ''
+      const weight = isToday ? 'font-weight:600;' : ''
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 16px;border-bottom:1px solid var(--border-subtle,rgba(127,127,127,.12));${background}"><span style="${weight}">${escapeHtml(row.day ?? '')}${isToday ? ' <span style="font-size:10px;color:var(--brand,#6366f1)">Today</span>' : ''}</span><span style="${weight}${closed ? 'opacity:.55' : ''}">${closed ? 'Closed' : escapeHtml(row.hours ?? '')}</span></div>`
+    })
+    .join('')
+
+  return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    <div class="max-w-md mx-auto">
+      ${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-center mb-6">${escapeHtml(title)}</h2>` : ''}
+      <div style="border:1px solid var(--border-default,rgba(127,127,127,.2));border-radius:12px;overflow:hidden">${body}</div>
+      ${note ? `<p class="mt-3 text-center text-[12.5px] text-text-2">${escapeHtml(note)}</p>` : ''}
+    </div>
+  </section>`
+}
+
 function renderChart(block: BlockConfig): string {
   const slices = toSlices(block.props.items) as (ReturnType<typeof toSlices>[number] & {
     barFraction: number
@@ -1558,6 +1589,8 @@ function renderBlockContent(block: BlockConfig): string {
       return renderWhatsapp(block)
     case 'chart':
       return renderChart(block)
+    case 'hours':
+      return renderHours(block)
     case 'content':
       return renderContent(block)
     case 'image':
