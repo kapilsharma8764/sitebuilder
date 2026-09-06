@@ -32,6 +32,9 @@ function propsFor(section: Section, pack: ContentPack): Record<string, unknown> 
         subheadline: pack.slogan,
         primaryCta: pack.cta,
         secondaryCta: pack.secondaryCta,
+        // The trade's own photograph, which is most of what makes a template
+        // look like a finished site rather than a wireframe.
+        image: gallery[0]?.src ?? '',
       }
 
     case 'stats':

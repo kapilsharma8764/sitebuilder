@@ -98,6 +98,21 @@ describe('exportSiteToHTML', () => {
     }
   })
 
+  it('publishes the hero photograph', () => {
+    // The layout that leads with a photo is the one most templates use, and
+    // an export that dropped the image would leave a dark empty band.
+    const card = templateCards.find((c) => c.id === 'saffron')!
+    const config = syncMenu(splitHeaderFooter(buildFromDefinition(card)))
+    const hero = config.blocks.find((b) => b.type === 'hero')
+    expect(hero?.props.image, 'template hero has no photo').toBeTruthy()
+
+    const html = exportSiteToHTML(config)
+    // Compared without the query string: the ampersands in it are escaped in
+    // the markup, which is correct and would make a literal match fail.
+    const photoPath = String(hero?.props.image).split('?')[0]
+    expect(html).toContain(photoPath)
+  })
+
   it('renders every template without throwing', () => {
     for (const card of templateCards) {
       const config = syncMenu(splitHeaderFooter(buildFromDefinition(card)))

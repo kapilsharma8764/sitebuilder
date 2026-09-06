@@ -187,113 +187,141 @@ ${navLinks}
 // Hero variants
 // ---------------------------------------------------------------------------
 
+/**
+ * The opening section, matching the editor's five layouts.
+ *
+ * `image` is the current prop; `heroImage` is read as a fallback so sites saved
+ * before the rename still publish with their photograph.
+ */
+function heroParts(block: BlockConfig) {
+  return {
+    badge: prop<string>(block.props, 'badge', ''),
+    headline: escapeHtml(prop(block.props, 'headline', '')),
+    subheadline: escapeHtml(prop(block.props, 'subheadline', '')),
+    primaryCta: prop<string>(block.props, 'primaryCta', ''),
+    primaryCtaUrl: prop<string>(block.props, 'primaryCtaUrl', ''),
+    secondaryCta: prop<string>(block.props, 'secondaryCta', ''),
+    secondaryCtaUrl: prop<string>(block.props, 'secondaryCtaUrl', ''),
+    image:
+      prop<string>(block.props, 'image', '') || prop<string>(block.props, 'heroImage', ''),
+  }
+}
+
+const PRIMARY_BTN =
+  'px-6 py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all inline-flex items-center gap-2'
+const SECONDARY_BTN =
+  'px-6 py-3 rounded-lg bg-bg-3 text-text-0 text-sm font-medium border border-border-default hover:bg-bg-4 hover:border-border-hover transition-all inline-block'
+
+function heroBadge(badge: string): string {
+  return badge
+    ? `      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 border border-brand/20 text-brand text-[11px] font-medium mb-6">${SVG_SPARKLES} ${escapeHtml(badge)}</div>`
+    : ''
+}
+
+/** The photo below the words, on the layouts that show one there. */
+function heroImageBelow(image: string, alt: string): string {
+  return image
+    ? `      <div class="mt-14 max-w-4xl mx-auto" style="aspect-ratio:16/9;border-radius:16px;overflow:hidden"><img src="${escapeHtml(image)}" alt="${alt}" loading="lazy" class="w-full h-full object-cover" /></div>`
+    : ''
+}
+
 function renderHeroCentered(block: BlockConfig): string {
-  const badge = prop<string>(block.props, 'badge', '')
-  const headline = escapeHtml(prop(block.props, 'headline', ''))
-  const subheadline = escapeHtml(prop(block.props, 'subheadline', ''))
-  const primaryCta = prop<string>(block.props, 'primaryCta', '')
-  const primaryCtaUrl = prop<string>(block.props, 'primaryCtaUrl', '')
-  const secondaryCta = prop<string>(block.props, 'secondaryCta', '')
-  const secondaryCtaUrl = prop<string>(block.props, 'secondaryCtaUrl', '')
-
-  const badgeHtml = badge
-    ? `      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 border border-brand/20 text-brand text-[11px] font-medium mb-6">
-        ${SVG_SPARKLES}
-        ${escapeHtml(badge)}
-      </div>`
+  const h = heroParts(block)
+  const secondary = h.secondaryCta
+    ? `        ${renderLink(h.secondaryCta, h.secondaryCtaUrl, SECONDARY_BTN)}`
     : ''
 
-  const secondaryHtml = secondaryCta
-    ? `        ${renderLink(secondaryCta, secondaryCtaUrl, 'px-6 py-3 rounded-lg bg-bg-3 text-text-0 text-sm font-medium border border-border-default hover:bg-bg-4 hover:border-border-hover transition-all inline-block')}`
-    : ''
-
-  return `  <section class="px-6 md:px-10 py-20 md:py-28 text-center">
-${badgeHtml}
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">${headline}</h1>
-      <p class="text-text-2 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">${subheadline}</p>
+  return `  <section class="px-6 md:px-10 py-20 md:py-24 text-center">
+${heroBadge(h.badge)}
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">${h.headline}</h1>
+      <p class="text-text-2 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">${h.subheadline}</p>
       <div class="flex flex-wrap items-center justify-center gap-3">
-        ${renderLink(primaryCta, primaryCtaUrl, 'px-6 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all inline-flex items-center gap-2')}
-${secondaryHtml}
+        ${renderLink(h.primaryCta, h.primaryCtaUrl, PRIMARY_BTN)}
+${secondary}
       </div>
+${heroImageBelow(h.image, h.headline)}
   </section>`
 }
 
 function renderHeroSplit(block: BlockConfig): string {
-  const badge = prop<string>(block.props, 'badge', '')
-  const headline = escapeHtml(prop(block.props, 'headline', ''))
-  const subheadline = escapeHtml(prop(block.props, 'subheadline', ''))
-  const primaryCta = prop<string>(block.props, 'primaryCta', '')
-  const primaryCtaUrl = prop<string>(block.props, 'primaryCtaUrl', '')
-  const secondaryCta = prop<string>(block.props, 'secondaryCta', '')
-  const secondaryCtaUrl = prop<string>(block.props, 'secondaryCtaUrl', '')
-  const heroImage = prop<string>(block.props, 'heroImage', '')
-
-  const badgeHtml = badge
-    ? `        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 border border-brand/20 text-brand text-[11px] font-medium mb-4">
-          ${SVG_SPARKLES}
-          ${escapeHtml(badge)}
-        </div>`
+  const h = heroParts(block)
+  const secondary = h.secondaryCta
+    ? `          ${renderLink(h.secondaryCta, h.secondaryCtaUrl, SECONDARY_BTN)}`
     : ''
 
-  const secondaryHtml = secondaryCta
-    ? `          ${renderLink(secondaryCta, secondaryCtaUrl, 'px-6 py-3 rounded-lg bg-bg-3 text-text-0 text-sm font-medium border border-border-default hover:bg-bg-4 transition-all inline-block')}`
-    : ''
+  const visual = h.image
+    ? `<img src="${escapeHtml(h.image)}" alt="${h.headline}" loading="lazy" class="w-full h-full object-cover" />`
+    : `<div class="w-full h-full" style="background:linear-gradient(135deg,rgba(99,102,241,.18),transparent)"></div>`
 
-  const imageHtml = heroImage
-    ? `          <img src="${escapeHtml(heroImage)}" alt="" class="absolute inset-0 w-full h-full object-cover" />`
-    : `          <div class="absolute inset-0 bg-gradient-to-br from-brand/5 to-transparent"></div>
-          <div class="absolute inset-6 border border-dashed border-border-default rounded-lg flex items-center justify-center text-text-3 text-sm">Preview</div>`
-
-  return `  <section class="px-6 md:px-10 py-16 md:py-24 flex flex-col lg:flex-row items-center gap-10">
+  return `  <section class="px-6 md:px-10 py-16 md:py-24">
+    <div class="flex flex-col md:flex-row items-center gap-10 md:gap-14">
       <div class="flex-1">
-${badgeHtml}
-        <h1 class="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4">${headline}</h1>
-        <p class="text-text-2 text-base leading-relaxed mb-6 max-w-lg">${subheadline}</p>
+${heroBadge(h.badge)}
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4">${h.headline}</h1>
+        <p class="text-text-2 text-base leading-relaxed mb-6 max-w-lg">${h.subheadline}</p>
         <div class="flex flex-wrap items-center gap-3">
-          ${renderLink(primaryCta, primaryCtaUrl, 'px-6 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all inline-flex items-center gap-2')}
-${secondaryHtml}
+          ${renderLink(h.primaryCta, h.primaryCtaUrl, PRIMARY_BTN)}
+${secondary}
         </div>
       </div>
-      <div class="flex-1 w-full">
-        <div class="aspect-[4/3] rounded-xl bg-bg-2 border border-border-default overflow-hidden relative">
-${imageHtml}
-        </div>
+      <div class="flex-1 w-full" style="aspect-ratio:4/3;border-radius:16px;overflow:hidden">${visual}</div>
+    </div>
+  </section>`
+}
+
+function renderHeroPhoto(block: BlockConfig): string {
+  const h = heroParts(block)
+  const secondary = h.secondaryCta
+    ? `        <a href="${escapeHtml(h.secondaryCtaUrl || '#')}" style="padding:12px 24px;border-radius:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:14px;font-weight:500;text-decoration:none;display:inline-block">${escapeHtml(h.secondaryCta)}</a>`
+    : ''
+
+  const photo = h.image
+    ? `<img src="${escapeHtml(h.image)}" alt="" class="w-full h-full object-cover" />`
+    : `<div class="w-full h-full" style="background:linear-gradient(135deg,#1f2937,#111827)"></div>`
+
+  return `  <section style="position:relative;min-height:480px;display:flex;align-items:center;overflow:hidden">
+    <div style="position:absolute;inset:0">${photo}
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),rgba(0,0,0,.45) 45%,rgba(0,0,0,.25))"></div>
+    </div>
+    <div style="position:relative;z-index:1;max-width:768px" class="px-6 md:px-14 py-20">
+      ${h.badge ? `<div style="display:inline-flex;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:500;margin-bottom:20px">${escapeHtml(h.badge)}</div>` : ''}
+      <h1 class="text-4xl md:text-6xl font-bold tracking-tight leading-[1.05] mb-4" style="color:#fff">${h.headline}</h1>
+      <p class="text-base md:text-lg leading-relaxed mb-8" style="color:rgba(255,255,255,.85);max-width:36rem">${h.subheadline}</p>
+      <div class="flex flex-wrap items-center gap-3">
+        ${renderLink(h.primaryCta, h.primaryCtaUrl, PRIMARY_BTN)}
+${secondary}
       </div>
+    </div>
   </section>`
 }
 
 function renderHeroGradient(block: BlockConfig): string {
-  const badge = prop<string>(block.props, 'badge', '')
-  const headline = escapeHtml(prop(block.props, 'headline', ''))
-  const subheadline = escapeHtml(prop(block.props, 'subheadline', ''))
-  const primaryCta = prop<string>(block.props, 'primaryCta', '')
-  const primaryCtaUrl = prop<string>(block.props, 'primaryCtaUrl', '')
-  const secondaryCta = prop<string>(block.props, 'secondaryCta', '')
-  const secondaryCtaUrl = prop<string>(block.props, 'secondaryCtaUrl', '')
-
-  const badgeHtml = badge
-    ? `        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 border border-brand/20 text-brand text-[11px] font-medium mb-6">
-          ${SVG_SPARKLES}
-          ${escapeHtml(badge)}
-        </div>`
+  const h = heroParts(block)
+  const secondary = h.secondaryCta
+    ? `        ${renderLink(h.secondaryCta, h.secondaryCtaUrl, SECONDARY_BTN)}`
     : ''
 
-  const secondaryHtml = secondaryCta
-    ? `          ${renderLink(secondaryCta, secondaryCtaUrl, 'px-6 py-3 rounded-lg bg-bg-3 text-text-0 text-sm font-medium border border-border-default hover:bg-bg-4 transition-all inline-block')}`
-    : ''
-
-  return `  <section class="px-6 md:px-10 py-20 md:py-32 text-center relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-b from-brand/5 via-transparent to-transparent pointer-events-none"></div>
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/[0.08] rounded-full blur-[100px] pointer-events-none"></div>
-      <div class="relative z-10">
-${badgeHtml}
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto text-text-0">${headline}</h1>
-        <p class="text-text-2 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">${subheadline}</p>
-        <div class="flex flex-wrap items-center justify-center gap-3">
-          ${renderLink(primaryCta, primaryCtaUrl, 'px-6 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all inline-flex items-center gap-2')}
-${secondaryHtml}
-        </div>
+  return `  <section class="px-6 md:px-10 py-20 md:py-28 text-center" style="position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(99,102,241,.08),transparent);pointer-events:none"></div>
+    <div style="position:relative;z-index:1">
+${heroBadge(h.badge)}
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">${h.headline}</h1>
+      <p class="text-text-2 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">${h.subheadline}</p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        ${renderLink(h.primaryCta, h.primaryCtaUrl, PRIMARY_BTN)}
+${secondary}
       </div>
+${heroImageBelow(h.image, h.headline)}
+    </div>
+  </section>`
+}
+
+function renderHeroMinimal(block: BlockConfig): string {
+  const h = heroParts(block)
+  return `  <section class="px-6 md:px-10 py-24 md:py-32 text-center">
+      <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.05] mb-6 max-w-4xl mx-auto">${h.headline}</h1>
+      <p class="text-text-2 text-lg md:text-xl leading-relaxed max-w-lg mx-auto mb-10">${h.subheadline}</p>
+      <div class="flex justify-center">${renderLink(h.primaryCta, h.primaryCtaUrl, PRIMARY_BTN)}</div>
   </section>`
 }
 
@@ -301,12 +329,17 @@ function renderHero(block: BlockConfig): string {
   switch (block.variant) {
     case 'split':
       return renderHeroSplit(block)
+    case 'photo':
+      return renderHeroPhoto(block)
     case 'gradient':
       return renderHeroGradient(block)
+    case 'minimal':
+      return renderHeroMinimal(block)
     default:
       return renderHeroCentered(block)
   }
 }
+
 
 // ---------------------------------------------------------------------------
 // Features

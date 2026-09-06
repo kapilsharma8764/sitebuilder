@@ -57,7 +57,7 @@ export const arrangements: Arrangement[] = [
     name: 'Showcase',
     sections: [
       { type: 'navbar', variant: 'centered', role: 'nav' },
-      { type: 'hero', variant: 'gradient', role: 'hero' },
+      { type: 'hero', variant: 'photo', role: 'hero' },
       { type: 'image', variant: 'side-by-side', role: 'photo' },
       { type: 'content', variant: 'prose', role: 'about' },
       { type: 'gallery', variant: 'grid', role: 'gallery' },
@@ -91,7 +91,7 @@ export const arrangements: Arrangement[] = [
     sections: [
       { type: 'banner', variant: 'bar', role: 'banner' },
       { type: 'navbar', variant: 'default', role: 'nav' },
-      { type: 'hero', variant: 'minimal', role: 'hero' },
+      { type: 'hero', variant: 'photo', role: 'hero' },
       { type: 'gallery', variant: 'masonry', role: 'gallery' },
       { type: 'content', variant: 'highlight', role: 'about' },
       { type: 'features', variant: 'alternating', role: 'services' },

@@ -54,6 +54,11 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
           subheadline: { kind: 'textarea', label: 'Supporting text', rows: 3 },
           primaryCta: { kind: 'text', label: 'Main button' },
           secondaryCta: { kind: 'text', label: 'Second button', help: 'Optional.' },
+          image: {
+            kind: 'image',
+            label: 'Photo',
+            help: 'Used by the photo and side-by-side styles, and shown below the text on the others.',
+          },
         },
       },
       {
@@ -64,9 +69,10 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
             label: 'Style',
             options: [
               { value: 'centered', label: 'Centred' },
-              { value: 'split', label: 'Text left, space right' },
+              { value: 'split', label: 'Text beside the photo' },
+              { value: 'photo', label: 'Photo across the top' },
               { value: 'gradient', label: 'Colour wash' },
-              { value: 'minimal', label: 'Minimal' },
+              { value: 'minimal', label: 'Words only' },
             ],
           },
         },
