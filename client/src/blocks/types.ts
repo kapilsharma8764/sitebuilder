@@ -62,11 +62,25 @@ export interface PageConfig {
   name: string
   path: string
   blocks: BlockConfig[]
+  /** Whether this page appears in the site's navigation. Defaults to true. */
+  showInMenu?: boolean
 }
 
 export interface SiteConfig {
   name: string
+  /**
+   * Drawn above every page. Held here rather than inside each page for the same
+   * reason a PHP site keeps one header.php: edit the logo once and it changes
+   * everywhere, instead of once per page and eventually inconsistently.
+   */
+  header?: BlockConfig[]
   pages?: PageConfig[]
+  /** The active page's blocks, mirrored for anything that predates pages. */
   blocks: BlockConfig[]
+  /** Drawn below every page. */
+  footer?: BlockConfig[]
   theme?: Partial<ThemeConfig>
 }
+
+/** Which part of the site the editor is currently working on. */
+export type SiteRegion = 'header' | 'page' | 'footer'

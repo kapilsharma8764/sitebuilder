@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useConfigStore } from '@/store/configStore'
+import type { SiteRegion } from '@/blocks/types'
 import { useEditorStore } from '@/store/editorStore'
 import { CanvasEmpty } from './CanvasEmpty'
 import { BlockWrapper } from '@/blocks/BlockWrapper'
@@ -7,7 +8,43 @@ import { RenderBlock } from '@/blocks/registry'
 import { resolveTheme, themeToCSS } from '@/lib/theme-presets'
 import { useGoogleFonts } from '@/lib/useGoogleFonts'
 
+/**
+ * A labelled strip around the header and footer, so it is obvious those parts
+ * are shared and that editing them changes every page.
+ */
+function SharedRegion({
+  label,
+  active,
+  onActivate,
+  children,
+}: {
+  label: string
+  active: boolean
+  onActivate: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onActivate}
+        className={`absolute -top-px left-0 z-[3] px-1.5 py-0.5 rounded-br text-[9px] font-medium tracking-wide uppercase transition-colors ${
+          active ? 'bg-brand text-white' : 'bg-bg-4 text-text-2 hover:bg-bg-5'
+        }`}
+        title={`${label} appears on every page`}
+      >
+        {label} · every page
+      </button>
+      {children}
+    </div>
+  )
+}
+
 export function Canvas() {
+  const header = useConfigStore((s) => s.config.header ?? [])
+  const footer = useConfigStore((s) => s.config.footer ?? [])
+  const activeRegion = useConfigStore((s) => s.activeRegion)
+  const setActiveRegion = useConfigStore((s) => s.setActiveRegion)
   const blocks = useConfigStore((s) => {
     const pages = s.config.pages
     if (!pages || pages.length === 0) return s.config.blocks
@@ -23,9 +60,27 @@ export function Canvas() {
 
   const maxWidth = viewport === 'desktop' ? '880px' : viewport === 'tablet' ? '768px' : '375px'
 
-  if (blocks.length === 0) {
+  const isEmpty = blocks.length === 0 && header.length === 0 && footer.length === 0
+  if (isEmpty) {
     return <CanvasEmpty />
   }
+
+  // Selecting a block also switches the active region, so the next widget you
+  // add lands beside the one you just clicked rather than on the page below.
+  const renderRegion = (list: typeof blocks, region: SiteRegion) =>
+    list.map((block) => (
+      <BlockWrapper
+        key={block.id}
+        block={block}
+        isSelected={selectedBlockId === block.id}
+        onSelect={() => {
+          selectBlock(block.id)
+          setActiveRegion(region)
+        }}
+      >
+        <RenderBlock block={block} />
+      </BlockWrapper>
+    ))
 
   const canvasContent = (
     <div
@@ -37,16 +92,27 @@ export function Canvas() {
       role="region"
       aria-label={`Site preview, ${blocks.length} blocks, ${viewport} viewport`}
     >
-      {blocks.map((block) => (
-        <BlockWrapper
-          key={block.id}
-          block={block}
-          isSelected={selectedBlockId === block.id}
-          onSelect={() => selectBlock(block.id)}
+      {header.length > 0 && (
+        <SharedRegion
+          label="Header"
+          active={activeRegion === 'header'}
+          onActivate={() => setActiveRegion('header')}
         >
-          <RenderBlock block={block} />
-        </BlockWrapper>
-      ))}
+          {renderRegion(header, 'header')}
+        </SharedRegion>
+      )}
+
+      <div onClick={() => setActiveRegion('page')}>{renderRegion(blocks, 'page')}</div>
+
+      {footer.length > 0 && (
+        <SharedRegion
+          label="Footer"
+          active={activeRegion === 'footer'}
+          onActivate={() => setActiveRegion('footer')}
+        >
+          {renderRegion(footer, 'footer')}
+        </SharedRegion>
+      )}
     </div>
   )
 

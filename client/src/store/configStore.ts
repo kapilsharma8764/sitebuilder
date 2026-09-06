@@ -1,21 +1,21 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { produce } from 'immer'
-import type { BlockConfig, SiteConfig, ThemeConfig, PageConfig } from '@/blocks/types'
+import type { BlockConfig, SiteConfig, ThemeConfig, PageConfig, SiteRegion } from '@/blocks/types'
 import { newId } from '@/lib/id'
-
-function ensurePages(config: SiteConfig): PageConfig[] {
-  if (config.pages && config.pages.length > 0) return config.pages
-  return [{ id: 'page-home', name: 'Home', path: '/', blocks: config.blocks }]
-}
-
-function getPageBlocks(config: SiteConfig, pageId: string): BlockConfig[] {
-  const pages = ensurePages(config)
-  const page = pages.find((p) => p.id === pageId)
-  return page?.blocks ?? pages[0]?.blocks ?? []
-}
+import {
+  ensurePages,
+  mutateRegion,
+  pathFromName,
+  regionBlocks,
+  regionOfBlock,
+  splitHeaderFooter,
+  syncMenu,
+} from './site-shape'
 
 interface UndoEntry {
+  header?: BlockConfig[]
+  footer?: BlockConfig[]
   pages?: PageConfig[]
   blocks: BlockConfig[]
   theme?: Partial<ThemeConfig>
@@ -26,10 +26,13 @@ interface UndoEntry {
 interface ConfigState {
   config: SiteConfig
   activePageId: string
+  /** Header, footer, or the page currently open. */
+  activeRegion: SiteRegion
   undoStack: UndoEntry[]
   redoStack: UndoEntry[]
   setConfig: (config: SiteConfig) => void
   setActivePage: (id: string) => void
+  setActiveRegion: (region: SiteRegion) => void
   getActivePageBlocks: () => BlockConfig[]
   updateBlock: (id: string, updates: Partial<BlockConfig>) => void
   updateBlockProps: (id: string, props: Record<string, unknown>) => void
@@ -37,9 +40,10 @@ interface ConfigState {
   removeBlock: (id: string) => void
   duplicateBlock: (id: string) => void
   moveBlock: (fromIndex: number, toIndex: number) => void
-  addPage: (name: string, path: string) => string
+  addPage: (name: string, showInMenu?: boolean) => string
   removePage: (id: string) => void
   renamePage: (id: string, name: string) => void
+  setPageInMenu: (id: string, showInMenu: boolean) => void
   setTheme: (theme: Partial<ThemeConfig>) => void
   updateTheme: (partial: Partial<ThemeConfig>) => void
   previewTheme: (partial: Partial<ThemeConfig>) => void
@@ -115,11 +119,19 @@ export const defaultConfig: SiteConfig = {
   blocks: defaultBlocks,
 }
 
-function snapshot(state: ConfigState): { pages?: PageConfig[]; blocks: BlockConfig[]; theme?: Partial<ThemeConfig> } {
+type Snapshot = Omit<UndoEntry, 'label' | 'timestamp'>
+
+function copy<T>(value: T | undefined): T | undefined {
+  return value === undefined ? undefined : (JSON.parse(JSON.stringify(value)) as T)
+}
+
+function snapshot(state: ConfigState): Snapshot {
   return {
-    pages: state.config.pages ? JSON.parse(JSON.stringify(state.config.pages)) : undefined,
+    header: copy(state.config.header),
+    footer: copy(state.config.footer),
+    pages: copy(state.config.pages),
     blocks: JSON.parse(JSON.stringify(state.config.blocks)),
-    theme: state.config.theme ? JSON.parse(JSON.stringify(state.config.theme)) : undefined,
+    theme: copy(state.config.theme),
   }
 }
 
@@ -134,72 +146,65 @@ function pushUndo(state: ConfigState, label: string): Partial<ConfigState> {
 }
 
 function withPages(config: SiteConfig): SiteConfig {
-  const pages = ensurePages(config)
-  return { ...config, pages }
-}
-
-function mutateActivePageBlocks(
-  config: SiteConfig,
-  activePageId: string,
-  mutator: (blocks: BlockConfig[]) => BlockConfig[],
-): SiteConfig {
-  const pages = ensurePages(config)
-  const newPages = pages.map((p) =>
-    p.id === activePageId ? { ...p, blocks: mutator([...p.blocks]) } : p,
-  )
-  // Keep top-level blocks synced with first page for backward compat
-  const activeBlocks = newPages.find((p) => p.id === activePageId)?.blocks ?? []
-  return { ...config, pages: newPages, blocks: activeBlocks }
+  return { ...config, pages: ensurePages(config) }
 }
 
 export const useConfigStore = create<ConfigState>()(
   persist(
     (set, get) => ({
-      config: defaultConfig,
+      config: splitHeaderFooter(defaultConfig),
       activePageId: 'page-home',
+      activeRegion: 'page',
       undoStack: [],
       redoStack: [],
 
       setConfig: (config) => {
-        const pages = ensurePages(config)
-        set({ config: { ...config, pages }, activePageId: pages[0]?.id ?? 'page-home', undoStack: [], redoStack: [] })
+        const shaped = syncMenu(splitHeaderFooter(config))
+        set({
+          config: shaped,
+          activePageId: ensurePages(shaped)[0]?.id ?? 'page-home',
+          activeRegion: 'page',
+          undoStack: [],
+          redoStack: [],
+        })
       },
 
-      setActivePage: (id) => set({ activePageId: id }),
+      setActivePage: (id) => set({ activePageId: id, activeRegion: 'page' }),
+
+      setActiveRegion: (region) => set({ activeRegion: region }),
 
       getActivePageBlocks: () => {
         const state = get()
-        return getPageBlocks(state.config, state.activePageId)
+        return regionBlocks(state.config, 'page', state.activePageId)
       },
 
       updateBlock: (id, updates) =>
         set((state) => ({
           ...pushUndo(state, 'Update block'),
-          config: produce(withPages(state.config), (draft) => {
-            const page = draft.pages!.find((p) => p.id === state.activePageId)
-            if (!page) return
-            const block = page.blocks.find((b) => b.id === id)
-            if (block) Object.assign(block, updates)
-            draft.blocks = page.blocks
-          }),
+          config: mutateRegion(
+            withPages(state.config),
+            regionOfBlock(state.config, id, state.activePageId),
+            state.activePageId,
+            (blocks) => blocks.map((b) => (b.id === id ? { ...b, ...updates } : b)),
+          ),
         })),
 
       updateBlockProps: (id, props) =>
         set((state) => ({
           ...pushUndo(state, 'Update properties'),
-          config: produce(withPages(state.config), (draft) => {
-            const page = draft.pages!.find((p) => p.id === state.activePageId)
-            if (!page) return
-            const block = page.blocks.find((b) => b.id === id)
-            if (block) Object.assign(block.props, props)
-            draft.blocks = page.blocks
-          }),
+          config: mutateRegion(
+            withPages(state.config),
+            regionOfBlock(state.config, id, state.activePageId),
+            state.activePageId,
+            (blocks) =>
+              blocks.map((b) => (b.id === id ? { ...b, props: { ...b.props, ...props } } : b)),
+          ),
         })),
 
       addBlock: (block, index) =>
         set((state) => ({
           ...pushUndo(state, 'Add block'),
-          config: mutateActivePageBlocks(withPages(state.config), state.activePageId, (blocks) => {
+          config: mutateRegion(withPages(state.config), state.activeRegion, state.activePageId, (blocks) => {
             if (index !== undefined) {
               blocks.splice(index, 0, block)
             } else {
@@ -212,14 +217,18 @@ export const useConfigStore = create<ConfigState>()(
       removeBlock: (id) =>
         set((state) => ({
           ...pushUndo(state, 'Remove block'),
-          config: mutateActivePageBlocks(withPages(state.config), state.activePageId, (blocks) =>
-            blocks.filter((b) => b.id !== id),
+          config: mutateRegion(
+            withPages(state.config),
+            regionOfBlock(state.config, id, state.activePageId),
+            state.activePageId,
+            (blocks) => blocks.filter((b) => b.id !== id),
           ),
         })),
 
       duplicateBlock: (id) =>
         set((state) => {
-          const blocks = getPageBlocks(state.config, state.activePageId)
+          const region = regionOfBlock(state.config, id, state.activePageId)
+          const blocks = regionBlocks(state.config, region, state.activePageId)
           const idx = blocks.findIndex((b) => b.id === id)
           if (idx === -1) return state
           const original = blocks[idx]
@@ -229,7 +238,7 @@ export const useConfigStore = create<ConfigState>()(
           }
           return {
             ...pushUndo(state, 'Duplicate block'),
-            config: mutateActivePageBlocks(withPages(state.config), state.activePageId, (b) => {
+            config: mutateRegion(withPages(state.config), region, state.activePageId, (b) => {
               b.splice(idx + 1, 0, clone)
               return b
             }),
@@ -239,21 +248,30 @@ export const useConfigStore = create<ConfigState>()(
       moveBlock: (fromIndex, toIndex) =>
         set((state) => ({
           ...pushUndo(state, 'Move block'),
-          config: mutateActivePageBlocks(withPages(state.config), state.activePageId, (blocks) => {
+          config: mutateRegion(withPages(state.config), state.activeRegion, state.activePageId, (blocks) => {
             const [moved] = blocks.splice(fromIndex, 1)
             blocks.splice(toIndex, 0, moved)
             return blocks
           }),
         })),
 
-      addPage: (name, path) => {
+      addPage: (name, showInMenu = true) => {
         const id = newId('page')
         set((state) => ({
           ...pushUndo(state, 'Add page'),
-          config: produce(withPages(state.config), (draft) => {
-            draft.pages!.push({ id, name, path, blocks: [] })
-          }),
+          config: syncMenu(
+            produce(withPages(state.config), (draft) => {
+              draft.pages!.push({
+                id,
+                name,
+                path: pathFromName(name),
+                blocks: [],
+                showInMenu,
+              })
+            }),
+          ),
           activePageId: id,
+          activeRegion: 'page',
         }))
         return id
       },
@@ -261,22 +279,40 @@ export const useConfigStore = create<ConfigState>()(
       removePage: (id) =>
         set((state) => {
           const pages = ensurePages(state.config)
+          // A site always has at least one page; removing the last one would
+          // leave the editor with nothing to draw.
           if (pages.length <= 1) return state
-          const newPages = pages.filter((p) => p.id !== id)
-          const newActiveId = state.activePageId === id ? newPages[0].id : state.activePageId
+          const remaining = pages.filter((p) => p.id !== id)
+          const activePageId = state.activePageId === id ? remaining[0].id : state.activePageId
+          const active = remaining.find((p) => p.id === activePageId) ?? remaining[0]
           return {
             ...pushUndo(state, 'Remove page'),
-            config: { ...state.config, pages: newPages, blocks: newPages[0].blocks },
-            activePageId: newActiveId,
+            config: syncMenu({ ...state.config, pages: remaining, blocks: active.blocks }),
+            activePageId,
           }
         }),
 
       renamePage: (id, name) =>
         set((state) => ({
-          config: produce(withPages(state.config), (draft) => {
-            const page = draft.pages!.find((p) => p.id === id)
-            if (page) page.name = name
-          }),
+          ...pushUndo(state, 'Rename page'),
+          config: syncMenu(
+            produce(withPages(state.config), (draft) => {
+              const page = draft.pages!.find((p) => p.id === id)
+              if (!page) return
+              page.name = name
+              page.path = pathFromName(name)
+            }),
+          ),
+        })),
+
+      setPageInMenu: (id, showInMenu) =>
+        set((state) => ({
+          config: syncMenu(
+            produce(withPages(state.config), (draft) => {
+              const page = draft.pages!.find((p) => p.id === id)
+              if (page) page.showInMenu = showInMenu
+            }),
+          ),
         })),
 
       setTheme: (theme) =>
@@ -304,7 +340,14 @@ export const useConfigStore = create<ConfigState>()(
           return {
             undoStack: state.undoStack.slice(0, -1),
             redoStack: [...state.redoStack, { ...snap, label: prev.label, timestamp: Date.now() }],
-            config: { ...state.config, pages: prev.pages, blocks: prev.blocks, theme: prev.theme },
+            config: {
+              ...state.config,
+              header: prev.header,
+              footer: prev.footer,
+              pages: prev.pages,
+              blocks: prev.blocks,
+              theme: prev.theme,
+            },
           }
         }),
 
@@ -316,7 +359,14 @@ export const useConfigStore = create<ConfigState>()(
           return {
             redoStack: state.redoStack.slice(0, -1),
             undoStack: [...state.undoStack, { ...snap, label: next.label, timestamp: Date.now() }],
-            config: { ...state.config, pages: next.pages, blocks: next.blocks, theme: next.theme },
+            config: {
+              ...state.config,
+              header: next.header,
+              footer: next.footer,
+              pages: next.pages,
+              blocks: next.blocks,
+              theme: next.theme,
+            },
           }
         }),
 
@@ -325,19 +375,29 @@ export const useConfigStore = create<ConfigState>()(
     }),
     {
       name: 'sitebuilder-config',
-      version: 2,
-      partialize: (state) => ({ config: state.config, activePageId: state.activePageId }),
+      version: 3,
+      partialize: (state) => ({
+        config: state.config,
+        activePageId: state.activePageId,
+        activeRegion: state.activeRegion,
+      }),
       migrate: (persisted, version) => {
         const data = persisted as Record<string, unknown>
-        if (version === 0 || version === 1 || version === undefined) {
+        const config = data.config as SiteConfig | undefined
+
+        if (config && !config.pages) {
           // v0/v1 -> v2: wrap blocks[] into pages[]
-          const config = data.config as SiteConfig | undefined
-          if (config && !config.pages) {
-            config.pages = [{ id: 'page-home', name: 'Home', path: '/', blocks: config.blocks || [] }]
-          }
+          config.pages = [{ id: 'page-home', name: 'Home', path: '/', blocks: config.blocks || [] }]
           data.activePageId = 'page-home'
-          return data
         }
+
+        if (config && version !== 3) {
+          // v2 -> v3: lift the navbar and footer out of the page so one header
+          // serves every page.
+          data.config = syncMenu(splitHeaderFooter(config))
+        }
+
+        data.activeRegion = 'page'
         return data
       },
     }

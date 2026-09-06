@@ -2,6 +2,7 @@ import { type ReactNode, useRef, useEffect } from 'react'
 import { Copy, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfigStore } from '@/store/configStore'
+import { regionBlocks, regionOfBlock } from '@/store/site-shape'
 import { useEditorStore } from '@/store/editorStore'
 import { useScrollReveal } from '@/lib/useScrollReveal'
 import type { BlockConfig } from './types'
@@ -14,12 +15,11 @@ interface Props {
 }
 
 export function BlockWrapper({ block, isSelected, onSelect, children }: Props) {
-  const blocks = useConfigStore((s) => {
-    const pages = s.config.pages
-    if (!pages || pages.length === 0) return s.config.blocks
-    const page = pages.find((p) => p.id === s.activePageId) ?? pages[0]
-    return page.blocks
-  })
+  // The up/down controls need to know how long the list this block sits in is,
+  // and that list may be the header, the page or the footer.
+  const blocks = useConfigStore((s) =>
+    regionBlocks(s.config, regionOfBlock(s.config, block.id, s.activePageId), s.activePageId),
+  )
   const { duplicateBlock, removeBlock, moveBlock } = useConfigStore()
   const { selectedBlockId, selectBlock } = useEditorStore()
   const previewMode = useEditorStore((s) => s.previewMode)

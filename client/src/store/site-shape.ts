@@ -1,0 +1,136 @@
+import type { BlockConfig, PageConfig, SiteConfig, SiteRegion } from '@/blocks/types'
+
+/**
+ * Rules about the shape of a site: what belongs to the header, what belongs to
+ * a page, and how the navigation stays in step with the pages that exist.
+ *
+ * Kept apart from the store so it can be reasoned about and tested on its own.
+ */
+
+/** Block types that belong above every page rather than inside one. */
+const HEADER_TYPES = new Set(['navbar', 'banner'])
+
+export function ensurePages(config: SiteConfig): PageConfig[] {
+  if (config.pages && config.pages.length > 0) return config.pages
+  return [{ id: 'page-home', name: 'Home', path: '/', blocks: config.blocks, showInMenu: true }]
+}
+
+/**
+ * Lifts the header and footer out of a page's blocks.
+ *
+ * Templates and older saved sites keep the navbar and footer inside the page,
+ * because that is how a single-page builder works. Splitting them out once, on
+ * load, is what lets one header serve every page.
+ */
+export function splitHeaderFooter(config: SiteConfig): SiteConfig {
+  if (config.header && config.footer) return { ...config, pages: ensurePages(config) }
+
+  const pages = ensurePages(config)
+  const first = pages[0]?.blocks ?? []
+
+  const header: BlockConfig[] = []
+  let start = 0
+  while (start < first.length && HEADER_TYPES.has(first[start].type)) {
+    header.push(first[start])
+    start += 1
+  }
+
+  const footer: BlockConfig[] = []
+  let end = first.length
+  while (end > start && first[end - 1].type === 'footer') {
+    footer.unshift(first[end - 1])
+    end -= 1
+  }
+
+  // Whatever was lifted off the first page is stripped from the others too, so
+  // a multi-page template does not end up with two headers on page two.
+  const strippedPages = pages.map((page, index) => ({
+    ...page,
+    showInMenu: page.showInMenu ?? true,
+    blocks:
+      index === 0
+        ? page.blocks.slice(start, end)
+        : page.blocks.filter((b) => !HEADER_TYPES.has(b.type) && b.type !== 'footer'),
+  }))
+
+  return {
+    ...config,
+    header: config.header ?? header,
+    footer: config.footer ?? footer,
+    pages: strippedPages,
+    blocks: strippedPages[0]?.blocks ?? [],
+  }
+}
+
+export function regionBlocks(
+  config: SiteConfig,
+  region: SiteRegion,
+  activePageId: string,
+): BlockConfig[] {
+  if (region === 'header') return config.header ?? []
+  if (region === 'footer') return config.footer ?? []
+  const pages = ensurePages(config)
+  return (pages.find((p) => p.id === activePageId) ?? pages[0]).blocks
+}
+
+/** Which region holds a given block — needed because selection is by id alone. */
+export function regionOfBlock(
+  config: SiteConfig,
+  blockId: string,
+  activePageId: string,
+): SiteRegion {
+  if (config.header?.some((b) => b.id === blockId)) return 'header'
+  if (config.footer?.some((b) => b.id === blockId)) return 'footer'
+  void activePageId
+  return 'page'
+}
+
+export function mutateRegion(
+  config: SiteConfig,
+  region: SiteRegion,
+  activePageId: string,
+  mutator: (blocks: BlockConfig[]) => BlockConfig[],
+): SiteConfig {
+  if (region === 'header') return { ...config, header: mutator([...(config.header ?? [])]) }
+  if (region === 'footer') return { ...config, footer: mutator([...(config.footer ?? [])]) }
+
+  const pages = ensurePages(config)
+  const nextPages = pages.map((page) =>
+    page.id === activePageId ? { ...page, blocks: mutator([...page.blocks]) } : page,
+  )
+  const active = nextPages.find((p) => p.id === activePageId) ?? nextPages[0]
+  return { ...config, pages: nextPages, blocks: active.blocks }
+}
+
+/**
+ * Keeps the navigation showing exactly the pages that exist.
+ *
+ * This is the "dynamic menu" part: add a page and it appears in the menu, remove
+ * it and it disappears, without anyone editing the header. Pages can opt out
+ * individually — a thank-you page should not be in the menu.
+ */
+export function syncMenu(config: SiteConfig): SiteConfig {
+  const header = config.header
+  if (!header?.length) return config
+
+  const links = ensurePages(config)
+    .filter((page) => page.showInMenu !== false)
+    .map((page) => page.name)
+
+  return {
+    ...config,
+    header: header.map((block) =>
+      block.type === 'navbar' ? { ...block, props: { ...block.props, links } } : block,
+    ),
+  }
+}
+
+/** A URL path from a page name: "Our Services" becomes "/our-services". */
+export function pathFromName(name: string): string {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return slug ? `/${slug}` : '/page'
+}

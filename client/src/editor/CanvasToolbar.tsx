@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner'
 import { useEditorStore, type Viewport } from '@/store/editorStore'
 import { useConfigStore } from '@/store/configStore'
+import { pathFromName } from '@/store/site-shape'
 import { useProjectsStore } from '@/store/projectsStore'
 import type { PageConfig } from '@/blocks/types'
 import { exportToHTML, downloadHTML } from '@/lib/export-html'
@@ -27,54 +28,70 @@ const viewports: { value: Viewport; icon: typeof Monitor; label: string }[] = [
   { value: 'mobile', icon: Smartphone, label: 'Mobile' },
 ]
 
-function AddPagePopover({ onAdd, onClose }: { onAdd: (name: string, path: string) => void; onClose: () => void }) {
+function AddPagePopover({
+  onAdd,
+  onClose,
+}: {
+  onAdd: (name: string, showInMenu: boolean) => void
+  onClose: () => void
+}) {
   const [name, setName] = useState('')
-  const [path, setPath] = useState('/')
+  const [showInMenu, setShowInMenu] = useState(true)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
   function submit() {
     const trimmed = name.trim()
     if (!trimmed) return
-    const cleanPath = path.trim() || `/${trimmed.toLowerCase().replace(/\s+/g, '-')}`
-    onAdd(trimmed, cleanPath)
+    onAdd(trimmed, showInMenu)
     onClose()
   }
 
   return (
-    <div className="absolute top-full left-0 mt-1 bg-bg-2 border border-border-default rounded-lg p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-20 w-52">
+    <div className="absolute top-full left-0 mt-1 bg-bg-2 border border-border-default rounded-lg p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-20 w-56">
       <div className="space-y-2">
         <div>
-          <label className="block text-[10px] text-text-3 mb-0.5">Page name</label>
+          <label className="block text-[10px] text-text-3 mb-0.5" htmlFor="new-page-name">
+            Page name
+          </label>
           <input
+            id="new-page-name"
             ref={inputRef}
             value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              if (!path || path === '/') setPath(`/${e.target.value.toLowerCase().replace(/\s+/g, '-')}`)
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit()
+              if (e.key === 'Escape') onClose()
             }}
-            onKeyDown={(e) => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onClose() }}
             placeholder="About"
             className="w-full px-2 py-1.5 rounded border border-border-default bg-bg-3 text-text-0 text-[11.5px] outline-none focus:border-brand"
           />
+          {/* The address is derived rather than asked for — one less thing to
+              get wrong, and it always matches the name shown in the menu. */}
+          <p className="mt-1 text-[10px] text-text-3 font-mono">
+            {name.trim() ? pathFromName(name) : '/page'}
+          </p>
         </div>
-        <div>
-          <label className="block text-[10px] text-text-3 mb-0.5">Path</label>
+
+        <label className="flex items-center gap-1.5 text-[10.5px] text-text-2 cursor-pointer select-none">
           <input
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onClose() }}
-            placeholder="/about"
-            className="w-full px-2 py-1.5 rounded border border-border-default bg-bg-3 text-text-0 text-[11.5px] outline-none focus:border-brand font-mono"
+            type="checkbox"
+            checked={showInMenu}
+            onChange={(e) => setShowInMenu(e.target.checked)}
+            className="accent-brand"
           />
-        </div>
+          Show in the menu
+        </label>
+
         <button
           onClick={submit}
           disabled={!name.trim()}
-          className="w-full py-1.5 rounded bg-brand text-black text-[11px] font-semibold hover:bg-brand-dim transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full py-1.5 rounded bg-brand text-white text-[11px] font-semibold hover:bg-brand-dim transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          Add Page
+          Add page
         </button>
       </div>
     </div>
@@ -233,7 +250,7 @@ export function CanvasToolbar() {
           </button>
           {showAddPage && (
             <AddPagePopover
-              onAdd={(name, path) => addPage(name, path)}
+              onAdd={(name, showInMenu) => addPage(name, showInMenu)}
               onClose={() => setShowAddPage(false)}
             />
           )}

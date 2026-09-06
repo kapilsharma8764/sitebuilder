@@ -64,6 +64,10 @@ export function applyProfile(config: SiteConfig, profile: BusinessProfile): Site
   return {
     ...config,
     name: profile.name.trim() || config.name,
+    // The header and footer are shared across pages, so they carry the business
+    // name and logo and must be filled in too.
+    header: config.header ? applyAll(config.header) : undefined,
+    footer: config.footer ? applyAll(config.footer) : undefined,
     blocks: applyAll(config.blocks),
     pages: config.pages?.map((page) => ({ ...page, blocks: applyAll(page.blocks) })),
   }
