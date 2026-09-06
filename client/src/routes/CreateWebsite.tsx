@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, ImageOff, Wand2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ImageOff, Loader2, Upload, Wand2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useBusinessStore } from '@/store/businessStore'
 import {
   audienceOptions,
@@ -9,6 +10,7 @@ import {
   isProfileComplete,
 } from '@/onboarding/profile'
 import { suggestAbout, suggestSlogans } from '@/onboarding/suggestions'
+import { ImageReadError, readImageAsDataUrl } from '@/onboarding/read-image'
 
 /**
  * The Create Website flow: what kind of website, then the business details,
@@ -73,10 +75,28 @@ function LogoInput({
   square?: boolean
 }) {
   const [broken, setBroken] = useState(false)
+  const [reading, setReading] = useState(false)
+  const inputId = `logo-${label.replace(/\s+/g, '-').toLowerCase()}`
+
+  async function pick(file: File | undefined) {
+    if (!file) return
+    setReading(true)
+    try {
+      const dataUrl = await readImageAsDataUrl(file)
+      setBroken(false)
+      onChange(dataUrl)
+    } catch (error) {
+      toast.error(error instanceof ImageReadError ? error.message : 'Could not read that image')
+    } finally {
+      setReading(false)
+    }
+  }
 
   return (
     <div>
-      <label className={labelClass}>{label}</label>
+      <label className={labelClass} htmlFor={inputId}>
+        {label}
+      </label>
       <div className="flex gap-3">
         <div
           className={`shrink-0 rounded-xl border border-border-default bg-bg-2 overflow-hidden grid place-items-center ${
@@ -95,16 +115,48 @@ function LogoInput({
             <ImageOff size={15} className="text-text-3" />
           )}
         </div>
-        <div className="flex-1">
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor={inputId}
+              className="h-9 px-3 rounded-xl border border-border-default bg-bg-2 text-[12.5px] text-text-1 hover:bg-bg-3 hover:text-text-0 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+            >
+              {reading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+              {value ? 'Change' : 'Choose a file'}
+            </label>
+            <input
+              id={inputId}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => {
+                void pick(e.target.files?.[0])
+                // Cleared so choosing the same file twice still fires.
+                e.target.value = ''
+              }}
+            />
+
+            {value && (
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="text-[11.5px] text-text-3 hover:text-status-red transition-colors"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+
           <input
-            type="text"
-            value={value}
-            placeholder="Paste an image link"
+            type="url"
+            value={value.startsWith('data:') ? '' : value}
+            placeholder="…or paste an image link"
             onChange={(e) => {
               setBroken(false)
               onChange(e.target.value)
             }}
-            className={inputClass}
+            className={`${inputClass} mt-2`}
           />
           <p className="mt-1 text-[11px] text-text-3 leading-snug">{help}</p>
         </div>
@@ -252,7 +304,7 @@ export function CreateWebsite() {
 
               <LogoInput
                 label="Logo"
-                help="Shown in the header. A transparent PNG looks best."
+                help="Shown in the header. A PNG with a transparent background looks best."
                 value={profile.logo}
                 onChange={(logo) => update({ logo })}
               />
