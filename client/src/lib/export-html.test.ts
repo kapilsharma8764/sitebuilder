@@ -125,6 +125,23 @@ describe('exportSiteToHTML', () => {
     expect(html).not.toContain('font-family="system-ui, sans-serif"')
   })
 
+  it('publishes a working slider, not a stack of stuck photos', () => {
+    // The slides are stacked and cross-faded, so without the script the
+    // published page would show the first one for ever.
+    const card = templateCards.find((c) => c.id === 'tandoor')!
+    const config = syncMenu(splitHeaderFooter(buildFromDefinition(card)))
+    const slider = config.blocks.find((b) => b.type === 'slider')
+    expect(slider, 'expected this template to open with a slider').toBeTruthy()
+    expect((slider!.props.slides as unknown[]).length).toBeGreaterThan(1)
+
+    const html = exportSiteToHTML(config)
+    expect(html).toContain('data-slider')
+    expect(html).toContain('data-slide')
+    expect(html).toContain('data-next')
+    // The behaviour has to reach the page, or the arrows do nothing.
+    expect(html).toContain("querySelectorAll('[data-slider]')")
+  })
+
   it('renders every template without throwing', () => {
     for (const card of templateCards) {
       const config = syncMenu(splitHeaderFooter(buildFromDefinition(card)))

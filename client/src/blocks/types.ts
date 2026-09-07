@@ -22,6 +22,8 @@ export type BlockType =
   | 'whatsapp'
   | 'chart'
   | 'hours'
+  | 'slider'
+  | 'products'
 
 export type BlockVariant = string
 

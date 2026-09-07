@@ -697,6 +697,87 @@ export const widgetSchemas: Record<BlockType, WidgetSchema> = {
     ],
   },
 
+  slider: {
+    groups: [
+      {
+        title: 'Slides',
+        fields: {
+          slides: {
+            kind: 'repeater',
+            label: 'Slides',
+            addLabel: 'Add a slide',
+            titleKey: 'heading',
+            fields: {
+              image: { kind: 'image', label: 'Photo' },
+              heading: { kind: 'text', label: 'Heading' },
+              text: { kind: 'textarea', label: 'Supporting text', rows: 2 },
+              buttonText: { kind: 'text', label: 'Button', help: 'Leave empty to hide the button.' },
+              buttonUrl: { kind: 'text', label: 'Button goes to', placeholder: '#contact' },
+            },
+          },
+        },
+      },
+      {
+        title: 'Behaviour',
+        fields: {
+          autoplay: { kind: 'switch', label: 'Change slides on its own' },
+          interval: {
+            kind: 'number',
+            label: 'Seconds per slide',
+            min: 2,
+            max: 30,
+            step: 1,
+            unit: 's',
+          },
+          height: { kind: 'number', label: 'Height', min: 240, max: 900, step: 20, unit: 'px' },
+        },
+      },
+    ],
+  },
+
+  products: {
+    groups: [
+      {
+        title: 'Content',
+        fields: {
+          title: { kind: 'text', label: 'Heading' },
+          subtitle: { kind: 'text', label: 'Supporting text' },
+          items: {
+            kind: 'repeater',
+            label: 'Items',
+            addLabel: 'Add an item',
+            titleKey: 'name',
+            fields: {
+              image: { kind: 'image', label: 'Photo' },
+              name: { kind: 'text', label: 'Name' },
+              description: { kind: 'textarea', label: 'Description', rows: 2 },
+              price: {
+                kind: 'text',
+                label: 'Price',
+                placeholder: '\u20b9499',
+                help: 'Write it however you say it \u2014 "\u20b9499", "From \u20b915,000", "On request".',
+              },
+              badge: { kind: 'text', label: 'Corner label', placeholder: 'New' },
+            },
+          },
+        },
+      },
+      {
+        title: 'Layout',
+        fields: {
+          variant: {
+            kind: 'select',
+            label: 'Style',
+            options: [
+              { value: 'cards', label: 'Cards with photos' },
+              { value: 'list', label: 'Price list' },
+            ],
+          },
+        },
+      },
+    ],
+  },
+
   hours: {
     groups: [
       {

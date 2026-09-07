@@ -80,6 +80,22 @@ function propsFor(section: Section, pack: ContentPack): Record<string, unknown> 
     case 'contact':
       return { title: pack.contactTitle, subtitle: pack.contactSubtitle }
 
+    case 'slider':
+      // Every photograph the trade has, each with its own heading — the
+      // opening most shop and restaurant sites use.
+      return {
+        autoplay: true,
+        interval: 6,
+        height: 520,
+        slides: gallery.slice(0, 3).map((photo, index) => ({
+          image: photo.src,
+          heading: index === 0 ? pack.headline : pack.servicesTitle,
+          text: index === 0 ? pack.slogan : pack.contactSubtitle,
+          buttonText: index === 0 ? pack.cta : pack.secondaryCta,
+          buttonUrl: '#',
+        })),
+      }
+
     case 'map':
       return {
         title: 'Find us',

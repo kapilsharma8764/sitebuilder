@@ -26,6 +26,8 @@ import { MapBlock } from './map/MapBlock'
 import { WhatsappBlock } from './whatsapp/WhatsappBlock'
 import { ChartBlock } from './chart/ChartBlock'
 import { HoursBlock } from './hours/HoursBlock'
+import { SliderBlock } from './slider/SliderBlock'
+import { ProductsBlock } from './products/ProductsBlock'
 
 // Error boundary for individual blocks
 class BlockErrorBoundary extends Component<
@@ -88,6 +90,8 @@ const blockRenderers: Record<string, React.ComponentType<{ block: BlockConfig }>
   whatsapp: WhatsappBlock,
   chart: ChartBlock,
   hours: HoursBlock,
+  slider: SliderBlock,
+  products: ProductsBlock,
 }
 
 export function RenderBlock({ block }: { block: BlockConfig }): ReactNode {

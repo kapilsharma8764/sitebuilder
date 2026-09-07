@@ -4,7 +4,7 @@ import {
   Layout, Type, Grid3X3, DollarSign, Megaphone, PanelBottom,
   MessageSquare, BarChart3, HelpCircle, Users, Mail, Newspaper, Image,
   Copy, Trash2, GripVertical, Plus, Search, Minus, Flag,
-  FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle, PieChart, Clock,
+  FileText, ImageIcon, Play, GalleryHorizontalEnd, MapPin, MessageCircle, PieChart, Clock, Package,
 } from 'lucide-react'
 import {
   DndContext,
@@ -34,7 +34,7 @@ const blockIcons: Record<BlockType, typeof Layout> = {
   stats: BarChart3, faq: HelpCircle, team: Users, contact: Mail,
   newsletter: Newspaper, logocloud: Image, divider: Minus, banner: Flag,
   content: FileText, image: ImageIcon, video: Play, gallery: GalleryHorizontalEnd,
-  map: MapPin, whatsapp: MessageCircle, chart: PieChart, hours: Clock,
+  map: MapPin, whatsapp: MessageCircle, chart: PieChart, hours: Clock, slider: GalleryHorizontalEnd, products: Package,
 }
 
 /** Labels come from the widget library so the two cannot drift apart. */

@@ -202,6 +202,41 @@ export const blockMetadata: BlockMeta[] = [
     },
   },
   {
+    type: 'slider',
+    label: 'Front slider',
+    description: 'Photographs cycling across the top, with a heading on each',
+    category: 'Media',
+    variants: ['fade'],
+    defaultProps: {
+      autoplay: true,
+      interval: 6,
+      height: 520,
+      slides: [
+        {
+          image: '',
+          heading: 'Welcome to our business',
+          text: 'A line about what you do and why people come to you.',
+          buttonText: 'Get in touch',
+          buttonUrl: '#',
+        },
+      ],
+    },
+  },
+  {
+    type: 'products',
+    label: 'Products & prices',
+    description: 'What you sell, with a photo and a price',
+    category: 'Content',
+    variants: ['cards', 'list'],
+    defaultProps: {
+      title: 'What we offer',
+      subtitle: '',
+      items: [
+        { image: '', name: 'First item', description: 'A line about it.', price: '', badge: '' },
+      ],
+    },
+  },
+  {
     type: 'hours',
     label: 'Opening hours',
     description: 'A row per day, with today marked',

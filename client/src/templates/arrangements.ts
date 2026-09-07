@@ -25,6 +25,7 @@ export interface Section {
     | 'faq'
     | 'cta'
     | 'contact'
+    | 'slider'
     | 'map'
     | 'whatsapp'
     | 'footer'
@@ -91,7 +92,7 @@ export const arrangements: Arrangement[] = [
     sections: [
       { type: 'banner', variant: 'bar', role: 'banner' },
       { type: 'navbar', variant: 'default', role: 'nav' },
-      { type: 'hero', variant: 'photo', role: 'hero' },
+      { type: 'slider', variant: 'fade', role: 'slider' },
       { type: 'gallery', variant: 'masonry', role: 'gallery' },
       { type: 'content', variant: 'highlight', role: 'about' },
       { type: 'features', variant: 'alternating', role: 'services' },

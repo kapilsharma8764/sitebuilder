@@ -5,6 +5,7 @@ import { isEmptyStyle, styleToRules } from '@/blocks/block-style'
 import { getIcon } from '@/blocks/icons'
 import { donutSegment, toSlices } from '@/blocks/chart/chart-data'
 import { todayIndex } from '@/blocks/hours/hours-data'
+import { sliderSlides } from '@/blocks/slider/slides'
 import { mapEmbedUrl, mapQuery } from '@/blocks/map/query'
 import { videoEmbedUrl } from '@/blocks/video/embed'
 import { whatsappHref, whatsappNumber } from '@/blocks/whatsapp/link'
@@ -1402,6 +1403,127 @@ function renderImage(block: BlockConfig): string {
   </section>`
 }
 
+/**
+ * The front slider.
+ *
+ * Slides are stacked and cross-faded by opacity, and the whole behaviour is a
+ * few lines of script at the bottom of the page — an index, a timer and two
+ * buttons. Loading a carousel library for that would weigh more than the rest
+ * of the page.
+ */
+function renderSlider(block: BlockConfig): string {
+  const slides = sliderSlides(block.props.slides)
+  if (slides.length === 0) return ''
+
+  const height = Number(block.props.height) || 520
+  const autoplay = block.props.autoplay !== false
+  const seconds = Math.max(2, Number(block.props.interval) || 6)
+  const id = `slider-${block.id.replace(/[^a-zA-Z0-9_-]/g, '')}`
+
+  const panels = slides
+    .map((slide, index) => {
+      const picture = slide.image
+        ? `<img src="${escapeHtml(slide.image)}" alt="${escapeHtml(slide.heading)}" class="w-full h-full object-cover" />`
+        : `<div class="w-full h-full" style="background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(0,0,0,.4))"></div>`
+
+      const button = slide.buttonText
+        ? `<a href="${escapeHtml(slide.buttonUrl || '#')}" style="display:inline-flex;margin-top:24px;padding:12px 24px;border-radius:8px;background:var(--brand,#6366f1);color:#fff;font-size:14px;font-weight:600;text-decoration:none">${escapeHtml(slide.buttonText)}</a>`
+        : ''
+
+      return `<div data-slide style="position:absolute;inset:0;opacity:${index === 0 ? 1 : 0};transition:opacity .7s ease"${index === 0 ? '' : ' aria-hidden="true"'}>
+        ${picture}
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),rgba(0,0,0,.4) 50%,rgba(0,0,0,.2))"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center">
+          <div class="px-6 md:px-14" style="max-width:42rem">
+            ${slide.heading ? `<h2 class="text-3xl md:text-5xl font-bold tracking-tight" style="color:#fff;line-height:1.08">${escapeHtml(slide.heading)}</h2>` : ''}
+            ${slide.text ? `<p class="text-base md:text-lg" style="color:rgba(255,255,255,.85);margin-top:12px;line-height:1.6">${escapeHtml(slide.text)}</p>` : ''}
+            ${button}
+          </div>
+        </div>
+      </div>`
+    })
+    .join('')
+
+  const controls =
+    slides.length > 1
+      ? `<button type="button" data-prev aria-label="Previous slide" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer">&#8249;</button>
+      <button type="button" data-next aria-label="Next slide" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer">&#8250;</button>
+      <div data-dots style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px">${slides
+        .map(
+          (_, index) =>
+            `<button type="button" data-dot aria-label="Go to slide ${index + 1}" style="height:6px;width:${index === 0 ? 24 : 6}px;border:0;border-radius:999px;background:${index === 0 ? '#fff' : 'rgba(255,255,255,.5)'};cursor:pointer;transition:all .3s"></button>`,
+        )
+        .join('')}</div>`
+      : ''
+
+  return `  <section id="${id}" data-slider data-autoplay="${autoplay}" data-interval="${seconds}" style="position:relative;overflow:hidden;height:${height}px">
+${panels}
+    ${controls}
+  </section>`
+}
+
+function renderProducts(block: BlockConfig): string {
+  const items = Array.isArray(block.props.items)
+    ? (block.props.items as {
+        image?: string
+        name?: string
+        description?: string
+        price?: string
+        badge?: string
+      }[]).filter((item) => item && (item.name || item.image))
+    : []
+  if (items.length === 0) return ''
+
+  const title = String(block.props.title ?? '')
+  const subtitle = String(block.props.subtitle ?? '')
+  const heading = `${title ? `<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-center mb-2">${escapeHtml(title)}</h2>` : ''}${subtitle ? `<p class="text-center text-sm text-text-2 mb-8">${escapeHtml(subtitle)}</p>` : ''}`
+
+  const picture = (item: { image?: string; name?: string }) =>
+    item.image
+      ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name ?? '')}" loading="lazy" class="w-full h-full object-cover" />`
+      : `<div class="w-full h-full" style="background:var(--bg-2,rgba(127,127,127,.12))"></div>`
+
+  if (block.variant === 'list') {
+    const rows = items
+      .map(
+        (item) =>
+          `<div style="display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border-subtle,rgba(127,127,127,.12))">
+            ${item.image ? `<div style="width:48px;height:48px;flex:0 0 auto;border-radius:8px;overflow:hidden">${picture(item)}</div>` : ''}
+            <div style="min-width:0;flex:1">
+              <p class="text-sm font-semibold">${escapeHtml(item.name ?? '')}</p>
+              ${item.description ? `<p class="text-[12.5px] text-text-2">${escapeHtml(item.description)}</p>` : ''}
+            </div>
+            ${item.price ? `<span class="text-sm font-semibold">${escapeHtml(item.price)}</span>` : ''}
+          </div>`,
+      )
+      .join('')
+
+    return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    ${heading}
+    <div class="max-w-2xl mx-auto" style="border:1px solid var(--border-default,rgba(127,127,127,.2));border-radius:12px;overflow:hidden">${rows}</div>
+  </section>`
+  }
+
+  const cards = items
+    .map(
+      (item) =>
+        `<div style="border:1px solid var(--border-default,rgba(127,127,127,.2));border-radius:12px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="position:relative;aspect-ratio:4/3">${picture(item)}${item.badge ? `<span style="position:absolute;top:10px;left:10px;padding:2px 8px;border-radius:999px;background:var(--brand,#6366f1);color:#fff;font-size:10px;font-weight:600">${escapeHtml(item.badge)}</span>` : ''}</div>
+          <div style="padding:16px;flex:1;display:flex;flex-direction:column">
+            <h3 class="text-sm font-semibold">${escapeHtml(item.name ?? '')}</h3>
+            ${item.description ? `<p class="text-[12.5px] text-text-2" style="margin-top:4px;flex:1;line-height:1.6">${escapeHtml(item.description)}</p>` : ''}
+            ${item.price ? `<p class="text-base font-bold" style="margin-top:12px">${escapeHtml(item.price)}</p>` : ''}
+          </div>
+        </div>`,
+    )
+    .join('')
+
+  return `  <section class="px-6 md:px-10 py-12 md:py-16">
+    ${heading}
+    <div class="max-w-5xl mx-auto grid gap-5 md:grid-cols-2 lg:grid-cols-3">${cards}</div>
+  </section>`
+}
+
 function renderHours(block: BlockConfig): string {
   const rows = Array.isArray(block.props.rows)
     ? (block.props.rows as { day?: string; hours?: string }[])
@@ -1599,6 +1721,10 @@ function renderBlockContent(block: BlockConfig): string {
       return renderChart(block)
     case 'hours':
       return renderHours(block)
+    case 'slider':
+      return renderSlider(block)
+    case 'products':
+      return renderProducts(block)
     case 'content':
       return renderContent(block)
     case 'image':
@@ -1630,6 +1756,56 @@ export function exportSiteToHTML(config: SiteConfig, options?: ExportSiteOptions
 
   // Sends the enquiry and tells the visitor what happened. Kept small and
   // dependency-free: this runs on the customer's published page.
+
+  // Each slider runs on its own: an index, a timer, and the two buttons.
+  const sliderScript = `  <script>
+    document.querySelectorAll('[data-slider]').forEach(function (root) {
+      var slides = root.querySelectorAll('[data-slide]')
+      if (slides.length < 2) return
+
+      var dots = root.querySelectorAll('[data-dot]')
+      var index = 0
+      var timer = null
+
+      function show(next) {
+        index = (next + slides.length) % slides.length
+        slides.forEach(function (slide, i) {
+          slide.style.opacity = i === index ? 1 : 0
+          if (i === index) { slide.removeAttribute('aria-hidden') } else { slide.setAttribute('aria-hidden', 'true') }
+        })
+        dots.forEach(function (dot, i) {
+          dot.style.width = i === index ? '24px' : '6px'
+          dot.style.background = i === index ? '#fff' : 'rgba(255,255,255,.5)'
+        })
+      }
+
+      function start() {
+        if (root.dataset.autoplay !== 'true') return
+        stop()
+        timer = setInterval(function () { show(index + 1) }, Number(root.dataset.interval || 6) * 1000)
+      }
+      function stop() { if (timer) { clearInterval(timer); timer = null } }
+
+      var prev = root.querySelector('[data-prev]')
+      var next = root.querySelector('[data-next]')
+      if (prev) prev.addEventListener('click', function () { show(index - 1); start() })
+      if (next) next.addEventListener('click', function () { show(index + 1); start() })
+      dots.forEach(function (dot, i) {
+        dot.addEventListener('click', function () { show(i); start() })
+      })
+
+      // Stop while the visitor is reading a slide, and while the tab is hidden
+      // so a background tab is not animating for nothing.
+      root.addEventListener('mouseenter', stop)
+      root.addEventListener('mouseleave', start)
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { stop() } else { start() }
+      })
+
+      start()
+    })
+  </script>`
+
   const enquiryScript = `  <script>
     document.querySelectorAll('[data-enquiry-form]').forEach(function (form) {
       var status = form.querySelector('[data-enquiry-status]')
@@ -1874,6 +2050,7 @@ ${posthogScript}
 
 ${blocksHtml}
 ${faqScript}
+${sliderScript}
 ${enquiryScript}
 </body>
 </html>`
