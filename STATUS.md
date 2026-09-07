@@ -91,8 +91,11 @@ ko de dena galat ho sakta hai.)*
 | **Drag & drop** — library se canvas pe, aur reorder | ✅ |
 | Google Map widget | ✅ |
 | WhatsApp button | ✅ |
+| **Front Slider** widget | ✅ |
+| **Product Information** widget | ✅ |
 | **Chart / Graph** widget | ✅ |
 | **Opening hours** widget | ✅ |
+| Dashboard pe site ka **preview thumbnail** | ✅ |
 | Resize / Style / font | ✅ |
 | **Har screen ke liye alag style** (desktop/tablet/phone) | ✅ |
 | Version history | ✅ |
@@ -107,13 +110,14 @@ ko de dena galat ho sakta hai.)*
 | **Custom domain** | Abhi `/site/naam` par milta hai, apna domain nahi |
 | **Team — ek site pe kai log** | Account ban gaye, par site sirf banane wale ki hai |
 | **AI se poori site likhwana** | "Describe it" design match karta hai; asli AI ke liye key chahiye |
+| **Free resize / reposition** (mouse se kahin bhi rakhna) | Plan me hi likha tha ki ye nahi hoga — Elementor bhi shuru me sections ek ke neeche ek hi rakhta hai. Section ki chaudai/spacing/height Style tab se badal sakte ho, upar-neeche drag se. |
 
 ---
 
 ## Quality
 
 ```
-110 tests (client) + 15 (server)   sab pass
+115 tests (client) + 15 (server)   sab pass
 CI green — har push pe lint + test + build
 0 lint errors
 ```
