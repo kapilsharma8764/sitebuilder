@@ -3,7 +3,7 @@ import { useDndMonitor } from '@dnd-kit/core'
 import { useState } from 'react'
 import { useConfigStore } from '@/store/configStore'
 import type { SiteRegion } from '@/blocks/types'
-import { DropGap } from '@/builder/DropGap'
+import { DropEnd, DropZone } from '@/builder/DropZone'
 import { useEditorStore } from '@/store/editorStore'
 import { CanvasEmpty } from './CanvasEmpty'
 import { BlockWrapper } from '@/blocks/BlockWrapper'
@@ -85,8 +85,7 @@ export function Canvas() {
   const renderRegion = (list: typeof blocks, region: SiteRegion) => (
     <>
       {list.map((block, index) => (
-        <div key={block.id}>
-          <DropGap region={region} index={index} active={dragging} />
+        <div key={block.id} className="relative">
           <BlockWrapper
             block={block}
             index={index}
@@ -99,11 +98,19 @@ export function Canvas() {
           >
             <RenderBlock block={block} />
           </BlockWrapper>
+
+          {/* While something is being dragged, each section's two halves become
+              landing places — above it and below it. */}
+          {dragging && (
+            <>
+              <DropZone region={region} index={index} edge="top" />
+              <DropZone region={region} index={index + 1} edge="bottom" />
+            </>
+          )}
         </div>
       ))}
-      {/* The gap after the last section, so something can be dropped at the
-          end of a region. */}
-      <DropGap region={region} index={list.length} active={dragging} />
+
+      {dragging && <DropEnd region={region} index={list.length} />}
     </>
   )
 

@@ -55,7 +55,7 @@ export function WhatsappBlock({ block }: { block: BlockConfig }) {
       }`}
     >
       <MessageCircle size={18} />
-      <span className="hidden @md:inline">{label}</span>
+      <span data-edit="label" className="hidden @md:inline">{label}</span>
     </a>
   )
 }

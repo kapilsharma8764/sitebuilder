@@ -48,7 +48,7 @@ export function MapBlock({ block }: { block: BlockConfig }) {
       <section className="px-6 @md:px-10 py-12 @md:py-16">
         <div className="grid gap-8 @2xl:grid-cols-2 @2xl:items-center">
           <div>
-            {title && <h2 className="text-2xl @md:text-3xl font-bold tracking-tight mb-3">{title}</h2>}
+            {title && <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight mb-3">{title}</h2>}
             {address && <p className="text-text-1 leading-relaxed whitespace-pre-line">{address}</p>}
             {timing && (
               <p className="mt-3 text-sm text-text-2">
@@ -65,7 +65,7 @@ export function MapBlock({ block }: { block: BlockConfig }) {
   return (
     <section className="px-6 @md:px-10 py-12 @md:py-16">
       {title && (
-        <h2 className="text-2xl @md:text-3xl font-bold tracking-tight text-center mb-6">{title}</h2>
+        <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight text-center mb-6">{title}</h2>
       )}
       <div className="overflow-hidden rounded-xl border border-border-default">{frame}</div>
       {(address || timing) && (

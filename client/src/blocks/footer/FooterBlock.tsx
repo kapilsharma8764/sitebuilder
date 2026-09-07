@@ -20,7 +20,7 @@ function FooterSimple({ props }: { props: FooterProps }) {
               <div className="w-3 h-3 rounded-full bg-brand" />
             </div>
           )}
-          <span className="text-sm font-semibold text-text-1">{props.logo}</span>
+          <span data-edit="logo" className="text-sm font-semibold text-text-1">{props.logo}</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -34,7 +34,7 @@ function FooterSimple({ props }: { props: FooterProps }) {
           ))}
         </div>
 
-        <span className="text-[11px] text-text-3">{props.copyright}</span>
+        <span data-edit="copyright" className="text-[11px] text-text-3">{props.copyright}</span>
       </div>
     </footer>
   )
@@ -61,7 +61,7 @@ function FooterMultiColumn({ props }: { props: FooterProps }) {
                 <div className="w-3.5 h-3.5 rounded-full bg-brand" />
               </div>
             )}
-            <span className="text-sm font-semibold">{props.logo}</span>
+            <span data-edit="logo" className="text-sm font-semibold">{props.logo}</span>
           </div>
           <p className="text-[12px] text-text-3 leading-relaxed max-w-[200px]">
             Build beautiful websites with structured JSON config.
@@ -89,7 +89,7 @@ function FooterMultiColumn({ props }: { props: FooterProps }) {
 
       {/* Bottom bar */}
       <div className="pt-6 border-t border-border-subtle flex flex-col @lg:flex-row items-center justify-between gap-3">
-        <span className="text-[11px] text-text-3">{props.copyright}</span>
+        <span data-edit="copyright" className="text-[11px] text-text-3">{props.copyright}</span>
         <div className="flex gap-4">
           {props.links.map((link, i) => (
             <span
@@ -109,7 +109,7 @@ function FooterMinimal({ props }: { props: FooterProps }) {
   return (
     <footer className="px-6 @md:px-10 py-6">
       <div className="flex items-center justify-center gap-1.5 text-[11px] text-text-3">
-        <span>{props.copyright}</span>
+        <span data-edit="copyright">{props.copyright}</span>
         {props.links.length > 0 && <span className="mx-1">|</span>}
         {props.links.map((link, i) => (
           <span key={i}>

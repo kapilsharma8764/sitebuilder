@@ -34,9 +34,7 @@ export function HoursBlock({ block }: { block: BlockConfig }) {
     <section className="px-6 @md:px-10 py-12 @md:py-16">
       <div className="max-w-md mx-auto">
         {title && (
-          <h2 className="text-2xl @md:text-3xl font-bold tracking-tight text-center mb-6">
-            {title}
-          </h2>
+          <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight text-center mb-6">{title}</h2>
         )}
 
         <dl className="rounded-xl border border-border-default overflow-hidden">
@@ -67,7 +65,7 @@ export function HoursBlock({ block }: { block: BlockConfig }) {
           })}
         </dl>
 
-        {note && <p className="mt-3 text-center text-[12.5px] text-text-2">{note}</p>}
+        {note && <p data-edit="note" className="mt-3 text-center text-[12.5px] text-text-2">{note}</p>}
       </div>
     </section>
   )

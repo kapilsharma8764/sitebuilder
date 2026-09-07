@@ -23,7 +23,7 @@ function StatsGrid({ props }: { props: StatsProps }) {
   return (
     <section className="px-6 @md:px-10 py-12 @md:py-16">
       {props.title && (
-        <h2 className="reveal-fade-up reveal-d1 text-xl font-bold tracking-tight text-center mb-8">{props.title}</h2>
+        <h2 data-edit="title" className="reveal-fade-up reveal-d1 text-xl font-bold tracking-tight text-center mb-8">{props.title}</h2>
       )}
       <div className="grid grid-cols-2 @2xl:grid-cols-4 gap-4">
         {items.map((item, i) => (
@@ -66,7 +66,7 @@ function StatsCounter({ props }: { props: StatsProps }) {
   return (
     <section className="px-6 @md:px-10 py-12 @md:py-16">
       {props.title && (
-        <h2 className="reveal-fade-up reveal-d1 text-xl font-bold tracking-tight text-center mb-8">{props.title}</h2>
+        <h2 data-edit="title" className="reveal-fade-up reveal-d1 text-xl font-bold tracking-tight text-center mb-8">{props.title}</h2>
       )}
       <div className="grid grid-cols-2 @2xl:grid-cols-4 gap-4">
         {items.map((item, i) => (

@@ -11,9 +11,14 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Don't fire in inputs
-      const tag = (e.target as HTMLElement).tagName
+      // Don't fire while someone is typing. Text edited directly on the page
+      // is contentEditable rather than an input, and without this check every
+      // letter that happens to be a shortcut is swallowed — typing "Sharma"
+      // opened History on the h and Preview on nothing at all.
+      const target = e.target as HTMLElement | null
+      const tag = target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (target?.isContentEditable) return
 
       // Nav shortcuts: 1-5
       if (!e.metaKey && !e.ctrlKey && !e.altKey) {

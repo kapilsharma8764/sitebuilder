@@ -4,6 +4,7 @@ import { useDraggable } from '@dnd-kit/core'
 import { toast } from 'sonner'
 import { useConfigStore } from '@/store/configStore'
 import { regionBlocks, regionOfBlock } from '@/store/site-shape'
+import { editableTarget, readPath, writePath } from './inline-edit'
 import { useEditorStore } from '@/store/editorStore'
 import { useScrollReveal } from '@/lib/useScrollReveal'
 import type { BlockConfig, SiteRegion } from './types'
@@ -46,6 +47,73 @@ export function BlockWrapper({ block, index, region, isSelected, onSelect, child
     }
   }, [isSelected])
 
+
+  // ── Editing text on the page ───────────────────────────────────────────
+  // Double-click a piece of text a widget has marked as editable and type
+  // straight into it. Hunting for the right box in the side panel every time
+  // you want to change a word is the difference between a builder that feels
+  // direct and one that feels like filling in a form.
+  const updateBlockProps = useConfigStore((s) => s.updateBlockProps)
+
+  function startEditing(event: React.MouseEvent) {
+    if (previewMode) return
+    const target = editableTarget(event.target)
+    if (!target) return
+
+    const path = target.dataset.edit
+    if (!path) return
+
+    event.stopPropagation()
+    event.preventDefault()
+
+    const before = String(readPath(block.props, path) ?? '')
+
+    target.contentEditable = 'plaintext-only'
+    target.spellcheck = false
+    target.focus()
+
+    // Put the cursor where they clicked rather than at the start.
+    const selection = window.getSelection()
+    if (selection && selection.rangeCount === 0) {
+      const range = document.createRange()
+      range.selectNodeContents(target)
+      range.collapse(false)
+      selection.addRange(range)
+    }
+
+    const finish = () => {
+      target.removeEventListener('blur', finish)
+      target.removeEventListener('keydown', onKey)
+      target.contentEditable = 'false'
+
+      const after = (target.textContent ?? '').trim()
+      // Only touch the store when something actually changed, so a stray
+      // double-click does not fill the undo history with no-ops.
+      if (after !== before) {
+        updateBlockProps(block.id, writePath(block.props, path, after))
+      } else {
+        // React did not re-render, so put back exactly what was there.
+        target.textContent = before
+      }
+    }
+
+    const onKey = (keyEvent: KeyboardEvent) => {
+      if (keyEvent.key === 'Escape') {
+        keyEvent.preventDefault()
+        target.textContent = before
+        target.blur()
+      }
+      // Enter commits on a single-line field; Shift+Enter always adds a line.
+      if (keyEvent.key === 'Enter' && !keyEvent.shiftKey && target.tagName !== 'P') {
+        keyEvent.preventDefault()
+        target.blur()
+      }
+    }
+
+    target.addEventListener('blur', finish)
+    target.addEventListener('keydown', onKey)
+  }
+
   if (previewMode) {
     return (
       <div
@@ -67,6 +135,7 @@ export function BlockWrapper({ block, index, region, isSelected, onSelect, child
         e.stopPropagation()
         onSelect()
       }}
+      onDoubleClick={startEditing}
       className={`scroll-revealed relative cursor-pointer border-b border-border-subtle group transition-[opacity,transform] duration-500 ${
         isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       } ${
@@ -79,6 +148,10 @@ export function BlockWrapper({ block, index, region, isSelected, onSelect, child
       aria-selected={isSelected}
       tabIndex={0}
       onKeyDown={(e) => {
+        // Enter and space select the section — but not while someone is
+        // typing into it, where space is a space and swallowing it makes the
+        // text come out as one long word.
+        if (e.target !== e.currentTarget) return
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           onSelect()
@@ -97,6 +170,14 @@ export function BlockWrapper({ block, index, region, isSelected, onSelect, child
       >
         {block.type}
       </span>
+
+      {/* Typing straight onto the page is not discoverable on its own, so the
+          selected section says so once. */}
+      {isSelected && (
+        <span className="absolute bottom-1.5 left-1.5 text-[9px] text-text-3 bg-bg-1/85 px-1.5 py-0.5 rounded z-10 pointer-events-none">
+          Double-click text to edit it
+        </span>
+      )}
 
       {/* Action buttons */}
       <div

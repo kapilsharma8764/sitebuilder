@@ -18,7 +18,7 @@ export function ContactBlock({ block }: { block: BlockConfig }) {
             {props.title || 'Get in Touch'}
           </h2>
           {props.subtitle && (
-            <p className="text-text-2 text-sm">{props.subtitle}</p>
+            <p data-edit="subtitle" className="text-text-2 text-sm">{props.subtitle}</p>
           )}
         </div>
 

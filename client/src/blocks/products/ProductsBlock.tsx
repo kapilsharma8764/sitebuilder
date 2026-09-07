@@ -57,8 +57,8 @@ export function ProductsBlock({ block }: { block: BlockConfig }) {
 
   const heading = (title || subtitle) && (
     <div className="text-center mb-8">
-      {title && <h2 className="text-2xl @md:text-3xl font-bold tracking-tight">{title}</h2>}
-      {subtitle && <p className="mt-2 text-sm text-text-2">{subtitle}</p>}
+      {title && <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight">{title}</h2>}
+      {subtitle && <p data-edit="subtitle" className="mt-2 text-sm text-text-2">{subtitle}</p>}
     </div>
   )
 

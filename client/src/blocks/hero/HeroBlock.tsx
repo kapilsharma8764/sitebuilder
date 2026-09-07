@@ -68,11 +68,11 @@ function HeroCentered({ props }: { props: HeroProps }) {
     <section className="px-6 @md:px-10 py-20 @md:py-24 text-center">
       {props.badge && <Badge text={props.badge} />}
 
-      <h1 className="reveal-fade-up reveal-d2 text-4xl @md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">
+      <h1 data-edit="headline" className="reveal-fade-up reveal-d2 text-4xl @md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">
         {props.headline}
       </h1>
 
-      <p className="reveal-fade-up reveal-d3 text-text-2 text-base @md:text-lg leading-relaxed max-w-xl mx-auto mb-8">
+      <p data-edit="subheadline" className="reveal-fade-up reveal-d3 text-text-2 text-base @md:text-lg leading-relaxed max-w-xl mx-auto mb-8">
         {props.subheadline}
       </p>
 
@@ -95,10 +95,10 @@ function HeroSplit({ props }: { props: HeroProps }) {
     <section className="px-6 @md:px-10 py-16 @md:py-24 flex flex-col @2xl:flex-row items-center gap-10 @2xl:gap-14">
       <div className="flex-1">
         {props.badge && <Badge text={props.badge} />}
-        <h1 className="reveal-fade-up reveal-d2 text-3xl @md:text-5xl font-bold tracking-tight leading-[1.1] mb-4">
+        <h1 data-edit="headline" className="reveal-fade-up reveal-d2 text-3xl @md:text-5xl font-bold tracking-tight leading-[1.1] mb-4">
           {props.headline}
         </h1>
-        <p className="reveal-fade-up reveal-d3 text-text-2 text-base leading-relaxed mb-6 max-w-lg">
+        <p data-edit="subheadline" className="reveal-fade-up reveal-d3 text-text-2 text-base leading-relaxed mb-6 max-w-lg">
           {props.subheadline}
         </p>
         <div className="reveal-fade-up reveal-d4 flex flex-wrap items-center gap-3">
@@ -135,10 +135,10 @@ function HeroPhoto({ props }: { props: HeroProps }) {
             {props.badge}
           </div>
         )}
-        <h1 className="reveal-fade-up reveal-d2 text-4xl @md:text-6xl font-bold tracking-tight leading-[1.05] mb-4 text-white">
+        <h1 data-edit="headline" className="reveal-fade-up reveal-d2 text-4xl @md:text-6xl font-bold tracking-tight leading-[1.05] mb-4 text-white">
           {props.headline}
         </h1>
-        <p className="reveal-fade-up reveal-d3 text-white/85 text-base @md:text-lg leading-relaxed max-w-xl mb-8">
+        <p data-edit="subheadline" className="reveal-fade-up reveal-d3 text-white/85 text-base @md:text-lg leading-relaxed max-w-xl mb-8">
           {props.subheadline}
         </p>
         <div className="reveal-fade-up reveal-d4 flex flex-wrap items-center gap-3">
@@ -163,13 +163,9 @@ function HeroGradient({ props }: { props: HeroProps }) {
       <div className="relative z-10">
         {props.badge && <Badge text={props.badge} />}
 
-        <h1 className="reveal-fade-up reveal-d2 text-4xl @md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">
-          {props.headline}
-        </h1>
+        <h1 data-edit="headline" className="reveal-fade-up reveal-d2 text-4xl @md:text-5xl font-bold tracking-tight leading-[1.1] mb-4 max-w-3xl mx-auto">{props.headline}</h1>
 
-        <p className="reveal-fade-up reveal-d3 text-text-2 text-base @md:text-lg leading-relaxed max-w-xl mx-auto mb-8">
-          {props.subheadline}
-        </p>
+        <p data-edit="subheadline" className="reveal-fade-up reveal-d3 text-text-2 text-base @md:text-lg leading-relaxed max-w-xl mx-auto mb-8">{props.subheadline}</p>
 
         <div className="reveal-fade-up reveal-d4 flex flex-wrap items-center justify-center gap-3">
           <PrimaryButton label={props.primaryCta} />
@@ -189,10 +185,10 @@ function HeroGradient({ props }: { props: HeroProps }) {
 function HeroMinimal({ props }: { props: HeroProps }) {
   return (
     <section className="px-6 @md:px-10 py-24 @md:py-32 text-center">
-      <h1 className="reveal-fade-up reveal-d1 text-5xl @md:text-7xl font-bold tracking-tighter leading-[1.05] mb-6 max-w-4xl mx-auto">
+      <h1 data-edit="headline" className="reveal-fade-up reveal-d1 text-5xl @md:text-7xl font-bold tracking-tighter leading-[1.05] mb-6 max-w-4xl mx-auto">
         {props.headline}
       </h1>
-      <p className="reveal-fade-up reveal-d2 text-text-2 text-lg @md:text-xl leading-relaxed max-w-lg mx-auto mb-10">
+      <p data-edit="subheadline" className="reveal-fade-up reveal-d2 text-text-2 text-lg @md:text-xl leading-relaxed max-w-lg mx-auto mb-10">
         {props.subheadline}
       </p>
       <div className="reveal-fade-up reveal-d3 flex justify-center">

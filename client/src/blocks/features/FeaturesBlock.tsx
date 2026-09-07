@@ -25,9 +25,9 @@ function FeaturesGrid({ props }: { props: FeaturesProps }) {
             {props.label}
           </div>
         )}
-        <h2 className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
+        <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
         {props.subtitle && (
-          <p className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
+          <p data-edit="subtitle" className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
         )}
       </div>
 
@@ -62,9 +62,9 @@ function FeaturesList({ props }: { props: FeaturesProps }) {
             {props.label}
           </div>
         )}
-        <h2 className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
+        <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
         {props.subtitle && (
-          <p className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
+          <p data-edit="subtitle" className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
         )}
       </div>
 
@@ -100,9 +100,9 @@ function FeaturesAlternating({ props }: { props: FeaturesProps }) {
             {props.label}
           </div>
         )}
-        <h2 className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
+        <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
         {props.subtitle && (
-          <p className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
+          <p data-edit="subtitle" className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
         )}
       </div>
 

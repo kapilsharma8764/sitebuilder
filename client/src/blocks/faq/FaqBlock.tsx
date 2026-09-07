@@ -62,7 +62,7 @@ export function FaqBlock({ block }: { block: BlockConfig }) {
           {props.title || 'Frequently Asked Questions'}
         </h2>
         {props.subtitle && (
-          <p className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
+          <p data-edit="subtitle" className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
         )}
       </div>
 

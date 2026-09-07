@@ -32,7 +32,7 @@ function Brand({ logo, logoImage }: { logo: string; logoImage?: string }) {
       <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
         <div className="w-4 h-4 rounded-full bg-brand" />
       </div>
-      <span className="font-semibold text-[15px] text-text-0 tracking-tight">{logo}</span>
+      <span data-edit="logo" className="font-semibold text-[15px] text-text-0 tracking-tight">{logo}</span>
     </div>
   )
 }

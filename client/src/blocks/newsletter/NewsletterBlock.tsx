@@ -40,7 +40,7 @@ export function NewsletterBlock({ block }: { block: BlockConfig }) {
         </div>
 
         {props.socialProof && (
-          <p className="text-[11px] text-text-3 mt-3">{props.socialProof}</p>
+          <p data-edit="socialProof" className="text-[11px] text-text-3 mt-3">{props.socialProof}</p>
         )}
         {!props.socialProof && (
           <p className="text-[11px] text-text-3 mt-3">Join 2,000+ developers and designers</p>

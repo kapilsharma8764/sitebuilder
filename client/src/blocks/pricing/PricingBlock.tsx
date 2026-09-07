@@ -51,9 +51,9 @@ function PricingSimple({ props }: { props: PricingProps }) {
   return (
     <section className="px-6 @md:px-10 py-16 @md:py-20">
       <div className="reveal-fade-up reveal-d1 text-center mb-10">
-        <h2 className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
+        <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
         {props.subtitle && (
-          <p className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
+          <p data-edit="subtitle" className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
         )}
       </div>
 
@@ -120,9 +120,9 @@ function PricingComparison({ props }: { props: PricingProps }) {
   return (
     <section className="px-6 @md:px-10 py-16 @md:py-20">
       <div className="reveal-fade-up reveal-d1 text-center mb-10">
-        <h2 className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
+        <h2 data-edit="title" className="text-2xl @md:text-3xl font-bold tracking-tight mb-2">{props.title}</h2>
         {props.subtitle && (
-          <p className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
+          <p data-edit="subtitle" className="text-text-2 text-sm max-w-lg mx-auto">{props.subtitle}</p>
         )}
       </div>
 
