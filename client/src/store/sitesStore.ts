@@ -5,6 +5,9 @@ interface SitesState {
   sites: SiteSummary[] | null
   error: string
   busy: boolean
+  /** Sites on this machine saved before accounts existed. */
+  unowned: number
+  claim: () => Promise<number>
   load: () => Promise<void>
   refresh: () => Promise<void>
   remove: (id: string) => Promise<void>
@@ -23,10 +26,26 @@ export const useSitesStore = create<SitesState>()((set, get) => ({
   error: '',
   busy: false,
 
+  unowned: 0,
+
+  claim: async () => {
+    const { claimed } = await api.claimSites()
+    set({ unowned: 0 })
+    await get().load()
+    return claimed
+  },
+
   load: async () => {
     try {
       const sites = await api.listSites()
       set({ sites, error: '' })
+      // Reported separately so a failure here cannot stop the list loading.
+      try {
+        const { count } = await api.unownedSites()
+        set({ unowned: count })
+      } catch {
+        set({ unowned: 0 })
+      }
     } catch (caught) {
       set({
         sites: [],

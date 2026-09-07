@@ -41,6 +41,8 @@ export function Dashboard() {
   const load = useSitesStore((s) => s.load)
   const refresh = useSitesStore((s) => s.refresh)
   const removeSite = useSitesStore((s) => s.remove)
+  const unowned = useSitesStore((s) => s.unowned)
+  const claim = useSitesStore((s) => s.claim)
   const setBusy = useSitesStore((s) => s.setBusy)
 
   const setConfig = useConfigStore((s) => s.setConfig)
@@ -125,6 +127,29 @@ export function Dashboard() {
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
         <div className="max-w-5xl mx-auto">
+          {/* Sites saved before accounts existed. Offered rather than taken:
+              attaching someone's work to the first account to sign up is the
+              kind of guess that is wrong exactly when it matters. */}
+          {unowned > 0 && (
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3">
+              <p className="text-[12.5px] text-text-1">
+                {unowned} site{unowned === 1 ? '' : 's'} on this computer {unowned === 1 ? 'is' : 'are'}{' '}
+                not attached to any account yet.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  void claim().then((claimed) =>
+                    toast(`${claimed} site${claimed === 1 ? '' : 's'} added to your account`),
+                  )
+                }}
+                className="h-8 px-3 rounded-lg bg-brand text-white text-[12px] font-semibold hover:bg-brand-dim transition-colors"
+              >
+                Add {unowned === 1 ? 'it' : 'them'} to my account
+              </button>
+            </div>
+          )}
+
           {sites === null ? (
             <div className="py-24 text-center text-text-3">
               <Loader2 size={18} className="mx-auto animate-spin" />

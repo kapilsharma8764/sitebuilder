@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Inbox, LayoutDashboard, Pencil, Settings, Menu, X, Star } from 'lucide-react'
+import { Home, Inbox, LayoutDashboard, LogOut, Pencil, Settings, Menu, X } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 
 const links = [
@@ -12,6 +13,8 @@ const links = [
 
 export function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const user = useAuthStore((s) => s.user)
+  const signOut = useAuthStore((s) => s.signOut)
 
   return (
     <header className="h-12 bg-bg-1 border-b border-border-default flex items-center px-4 gap-2 fixed top-0 left-0 right-0 z-50">
@@ -52,16 +55,25 @@ export function TopNav() {
 
       {/* Right side */}
       <div className="ml-auto flex items-center gap-2">
-        <a
-          href="https://github.com/kapilsharma8764/sitebuilder"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-default text-text-2 text-[11.5px] hover:text-text-0 hover:border-border-hover hover:bg-bg-2 transition-all"
-          title="Star on GitHub"
-        >
-          <Star size={12} />
-          GitHub
-        </a>
+        {user && (
+          <>
+            <span
+              className="hidden lg:inline text-[11.5px] text-text-3 max-w-[160px] truncate"
+              title={user.email}
+            >
+              {user.name || user.email}
+            </span>
+            <button
+              type="button"
+              onClick={signOut}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-default text-text-2 text-[11.5px] hover:text-text-0 hover:border-border-hover hover:bg-bg-2 transition-all"
+              title="Sign out"
+            >
+              <LogOut size={12} />
+              Sign out
+            </button>
+          </>
+        )}
 
         {/* Mobile hamburger */}
         <button

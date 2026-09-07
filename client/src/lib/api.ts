@@ -6,6 +6,8 @@
  * far is that the server simply is not running, and the message says so.
  */
 
+import { authToken, useAuthStore, type Account } from '@/store/authStore'
+
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8001'
 
 export class ApiError extends Error {
@@ -19,11 +21,17 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = authToken()
+
   let response: Response
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: { 'content-type': 'application/json', ...init?.headers },
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...init?.headers,
+      },
     })
   } catch {
     throw new ApiError(`Cannot reach the server at ${API_URL}. Is it running?`)
@@ -35,6 +43,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const body = text ? (JSON.parse(text) as unknown) : undefined
 
   if (!response.ok) {
+    // An expired or revoked session should not leave the app showing a
+    // half-signed-in state; clear it so the next screen is the sign-in one.
+    if (response.status === 401) useAuthStore.getState().signOut()
+
     const message =
       body && typeof body === 'object' && 'error' in body
         ? String((body as { error: unknown }).error)
@@ -76,7 +88,22 @@ export interface Lead {
 export const api = {
   health: () => request<{ ok: boolean }>('/api/health'),
 
+  register: (body: { email: string; password: string; name?: string }) =>
+    request<{ token: string; user: Account }>('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  login: (body: { email: string; password: string }) =>
+    request<{ token: string; user: Account }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  me: () => request<{ user: Account }>('/api/auth/me'),
+  authStatus: () => request<{ hasAccounts: boolean }>('/api/auth/status'),
+
   listSites: () => request<SiteSummary[]>('/api/sites'),
+  unownedSites: () => request<{ count: number; names: string[] }>('/api/sites/unowned'),
+  claimSites: () => request<{ claimed: number }>('/api/sites/claim', { method: 'POST' }),
   getSite: (id: string) => request<SiteRecord>(`/api/sites/${id}`),
   createSite: (body: { name: string; config: unknown; profile?: unknown }) =>
     request<SiteRecord>('/api/sites', { method: 'POST', body: JSON.stringify(body) }),

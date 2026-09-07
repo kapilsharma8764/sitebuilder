@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, afterAll, beforeAll } from 'vitest'
 import { API_URL, api, leadsEndpoint } from './api'
 import { exportSiteToHTML } from './export-html'
 import { buildFromDefinition } from '@/templates/build'
@@ -6,6 +6,7 @@ import { templateCards } from '@/templates/catalogue'
 import { splitHeaderFooter, syncMenu } from '@/store/site-shape'
 import { applyProfile } from '@/onboarding/apply-profile'
 import { emptyProfile } from '@/onboarding/profile'
+import { useAuthStore } from '@/store/authStore'
 
 /**
  * The whole publish loop against a running API: save a site, publish it, fetch
@@ -20,10 +21,20 @@ let serverUp = false
 beforeAll(async () => {
   try {
     await api.health()
-    serverUp = true
   } catch {
-    serverUp = false
+    return
   }
+
+  // The API is behind an account now, so the test needs one of its own rather
+  // than borrowing whichever account happens to exist on the machine.
+  const email = `test-${Date.now()}@example.invalid`
+  const { token, user } = await api.register({ email, password: 'test-password-1', name: 'Test' })
+  useAuthStore.getState().signIn(token, user)
+  serverUp = true
+})
+
+afterAll(() => {
+  useAuthStore.getState().signOut()
 })
 
 describe('publish flow', () => {
