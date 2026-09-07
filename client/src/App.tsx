@@ -3,6 +3,7 @@ import { ErrorBoundary } from './layout/ErrorBoundary'
 import { AppLayout } from './layout/AppLayout'
 import { Landing } from './routes/Landing'
 import { CreateWebsite } from './routes/CreateWebsite'
+import { Describe } from './routes/Describe'
 import { Templates } from './routes/Templates'
 import { Dashboard } from './routes/Dashboard'
 import { Leads } from './routes/Leads'
@@ -20,6 +21,7 @@ function AppRoutes() {
       <Route element={<AppLayout />}>
         <Route index element={<Landing />} />
         <Route path="create" element={<CreateWebsite />} />
+        <Route path="describe" element={<Describe />} />
         <Route path="templates" element={<Templates />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="leads" element={<Leads />} />

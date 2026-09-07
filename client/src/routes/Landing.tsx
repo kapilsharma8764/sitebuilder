@@ -59,17 +59,27 @@ export function Landing() {
             </span>
           </button>
 
-          <div className="text-left p-7 rounded-2xl bg-bg-2 border border-border-default opacity-60">
-            <div className="w-10 h-10 rounded-xl bg-bg-4 border border-border-default grid place-items-center">
-              <Wand2 size={17} className="text-text-2" />
+          <button
+            type="button"
+            onClick={() => {
+              reset()
+              navigate('/describe')
+            }}
+            className="group text-left p-7 rounded-2xl bg-bg-2 border border-border-default hover:border-brand hover:bg-bg-3 transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl bg-brand/12 border border-brand/25 grid place-items-center">
+              <Wand2 size={17} className="text-brand" />
             </div>
-            <h2 className="mt-4 text-base font-semibold text-text-1">Describe it to AI</h2>
-            <p className="mt-1.5 text-[12.5px] text-text-3 leading-relaxed">
-              Write what your website should say and have a first draft written for
-              you.
+            <h2 className="mt-4 text-base font-semibold text-text-0">Describe it instead</h2>
+            <p className="mt-1.5 text-[12.5px] text-text-2 leading-relaxed">
+              Write a sentence about your business and we pick the design that fits,
+              already filled in.
             </p>
-            <span className="mt-4 inline-block text-[11px] text-text-3">Coming next</span>
-          </div>
+            <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-brand">
+              Describe it
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+            </span>
+          </button>
         </div>
 
         {completed && (
