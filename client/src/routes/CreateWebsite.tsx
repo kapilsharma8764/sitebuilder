@@ -11,6 +11,7 @@ import {
 } from '@/onboarding/profile'
 import { suggestAbout, suggestSlogans } from '@/onboarding/suggestions'
 import { ImageReadError, readImageAsDataUrl } from '@/onboarding/read-image'
+import { LogoDesigner } from '@/onboarding/LogoDesigner'
 import { toSquare, trimEdges } from '@/onboarding/crop'
 
 /**
@@ -68,15 +69,21 @@ function LogoInput({
   value,
   onChange,
   square,
+  businessName,
+  onDesign,
 }: {
   label: string
   help: string
   value: string
   onChange: (v: string) => void
   square?: boolean
+  /** Only the main logo offers to design one; the square mark follows it. */
+  businessName?: string
+  onDesign?: (logo: string, squareMark: string) => void
 }) {
   const [broken, setBroken] = useState(false)
   const [reading, setReading] = useState(false)
+  const [designing, setDesigning] = useState(false)
   const inputId = `logo-${label.replace(/\s+/g, '-').toLowerCase()}`
 
   /** Runs one of the cropping helpers over the logo already chosen. */
@@ -145,6 +152,19 @@ function LogoInput({
               {reading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
               {value ? 'Change' : 'Choose a file'}
             </label>
+
+            {/* Most small businesses have no logo file. Being asked to upload
+                one is where this step used to stop. */}
+            {onDesign && (
+              <button
+                type="button"
+                onClick={() => setDesigning((open) => !open)}
+                className="h-9 px-3 rounded-xl border border-brand/40 bg-brand/10 text-[12.5px] text-brand hover:bg-brand/20 transition-colors inline-flex items-center gap-1.5"
+              >
+                <Wand2 size={13} />
+                {designing ? 'Close' : "Design one"}
+              </button>
+            )}
             <input
               id={inputId}
               type="file"
@@ -201,6 +221,21 @@ function LogoInput({
           <p className="mt-1 text-[11px] text-text-3 leading-snug">{help}</p>
         </div>
       </div>
+
+      {designing && onDesign && (
+        <div className="mt-3">
+          <LogoDesigner
+            businessName={businessName ?? ''}
+            onUse={(logo, squareMark) => {
+              setBroken(false)
+              onDesign(logo, squareMark)
+              setDesigning(false)
+              toast('Logo added')
+            }}
+            onCancel={() => setDesigning(false)}
+          />
+        </div>
+      )}
     </div>
   )
 }
@@ -344,9 +379,11 @@ export function CreateWebsite() {
 
               <LogoInput
                 label="Logo"
-                help="Shown in the header. A PNG with a transparent background looks best."
+                help="Shown in the header. A PNG with a transparent background looks best — or design one here."
                 value={profile.logo}
                 onChange={(logo) => update({ logo })}
+                businessName={profile.name}
+                onDesign={(logo, squareMark) => update({ logo, logoSquare: squareMark })}
               />
 
               <LogoInput
