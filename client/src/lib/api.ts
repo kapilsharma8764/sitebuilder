@@ -8,6 +8,8 @@
 
 import { authToken, useAuthStore, type Account } from '@/store/authStore'
 
+import type { BlockConfig, ThemeConfig } from '@/blocks/types'
+
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8001'
 
 export class ApiError extends Error {
@@ -65,6 +67,12 @@ export interface SiteSummary {
   publishedAt?: string
   updatedAt: string
   sectionCount: number
+  /** Enough of the site to draw a thumbnail, without sending the whole tree. */
+  preview?: {
+    theme: Partial<ThemeConfig> | null
+    header: BlockConfig[]
+    blocks: BlockConfig[]
+  }
 }
 
 export interface SiteRecord extends SiteSummary {

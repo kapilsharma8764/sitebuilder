@@ -4,14 +4,12 @@ import { ArrowLeft, Search, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { templateCards } from '@/templates/catalogue'
 import { buildFromDefinition } from '@/templates/build'
-import { RenderBlock } from '@/blocks/registry'
-import { resolveTheme, themeToCSS } from '@/lib/theme-presets'
 import { useConfigStore } from '@/store/configStore'
 import { usePublishStore } from '@/store/publishStore'
 import { api } from '@/lib/api'
 import { useBusinessStore } from '@/store/businessStore'
 import { applyProfile } from '@/onboarding/apply-profile'
-import type { SiteConfig } from '@/blocks/types'
+import { SitePreview } from '@/builder/SitePreview'
 
 /**
  * Pick a design, with the business's own words already in it.
@@ -20,31 +18,6 @@ import type { SiteConfig } from '@/blocks/types'
  * user picks is exactly what opens in the editor, and previews can never go
  * stale as widgets change.
  */
-
-function TemplatePreview({ config }: { config: SiteConfig }) {
-  const cssVars = useMemo(() => themeToCSS(resolveTheme(config.theme)), [config.theme])
-  const blocks = config.pages?.[0]?.blocks ?? config.blocks
-
-  return (
-    <div className="absolute inset-0 overflow-hidden bg-bg-0">
-      <div
-        className="@container absolute top-0 left-0 origin-top-left pointer-events-none select-none"
-        style={{
-          width: '1100px',
-          transform: 'scale(0.29)',
-          ...cssVars,
-          color: 'var(--color-text-0)',
-          backgroundColor: 'var(--color-bg-1)',
-        }}
-        aria-hidden="true"
-      >
-        {blocks.slice(0, 5).map((block) => (
-          <RenderBlock key={block.id} block={block} />
-        ))}
-      </div>
-    </div>
-  )
-}
 
 export function Templates() {
   const navigate = useNavigate()
@@ -176,7 +149,11 @@ export function Templates() {
                     }`}
                   >
                     <div className="relative h-44 border-b border-border-default">
-                      <TemplatePreview config={config} />
+                      <SitePreview
+                        theme={config.theme}
+                        blocks={[...(config.header ?? []), ...config.blocks]}
+                        scale={0.29}
+                      />
                       {isSelected && (
                         <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-brand grid place-items-center">
                           <Check size={11} className="text-white" />

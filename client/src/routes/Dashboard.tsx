@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { api, API_URL, ApiError, type SiteSummary } from '@/lib/api'
 import { useSitesStore } from '@/store/sitesStore'
+import { SitePreview } from '@/builder/SitePreview'
 import { useConfigStore } from '@/store/configStore'
 import { useBusinessStore } from '@/store/businessStore'
 import { usePublishStore } from '@/store/publishStore'
@@ -178,8 +179,16 @@ export function Dashboard() {
               {sites.map((site) => (
                 <div
                   key={site.id}
-                  className="rounded-xl border border-border-default bg-bg-1 p-4 flex flex-col gap-3 hover:border-border-hover transition-colors"
+                  className="rounded-xl border border-border-default bg-bg-1 flex flex-col hover:border-border-hover transition-colors overflow-hidden"
                 >
+                  <div className="relative h-36 border-b border-border-default">
+                    <SitePreview
+                      theme={site.preview?.theme}
+                      blocks={[...(site.preview?.header ?? []), ...(site.preview?.blocks ?? [])]}
+                    />
+                  </div>
+
+                  <div className="p-4 flex flex-col gap-3 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <h2 className="text-[13.5px] font-semibold text-text-0 truncate">
@@ -231,6 +240,7 @@ export function Dashboard() {
                     >
                       <Trash2 size={12} />
                     </button>
+                  </div>
                   </div>
                 </div>
               ))}

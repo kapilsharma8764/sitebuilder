@@ -151,11 +151,19 @@ app.get(
   '/api/sites',
   requireUser(async (req, res) => {
     const sites = await list('sites', { userId: req.user.id })
-    // The block tree is large and the list only needs headings.
+
+    // The whole block tree is far too much for a list of cards, but a card
+    // with no picture of the site is not much of a card. The first few
+    // sections and the theme are enough to draw a recognisable thumbnail.
     res.json(
       sites.map(({ config, ...rest }) => ({
         ...rest,
         sectionCount: Array.isArray(config?.blocks) ? config.blocks.length : 0,
+        preview: {
+          theme: config?.theme ?? null,
+          header: Array.isArray(config?.header) ? config.header : [],
+          blocks: Array.isArray(config?.blocks) ? config.blocks.slice(0, 3) : [],
+        },
       })),
     )
   }),
