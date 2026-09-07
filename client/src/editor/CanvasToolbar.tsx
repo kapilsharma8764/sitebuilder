@@ -13,7 +13,6 @@ import {
   HelpCircle,
   Download,
   ExternalLink,
-  Rocket,
   Loader2,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -196,7 +195,9 @@ export function CanvasToolbar() {
   const config = useConfigStore((s) => s.config)
   const [showAddPage, setShowAddPage] = useState(false)
   const [exporting, setExporting] = useState(false)
-  const { publish, busy: publishing, url: liveUrl } = usePublish()
+  // Publishing is not offered from the toolbar; the live link is still shown
+  // when a site has been published elsewhere.
+  const { url: liveUrl } = usePublish()
   const saveState = useAutoSave()
 
   const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) : null
@@ -408,23 +409,6 @@ export function CanvasToolbar() {
           </a>
         )}
 
-        <button
-          onClick={publish}
-          disabled={publishing}
-          className="h-7 px-3 rounded-lg bg-gradient-to-r from-brand to-brand-2 text-white text-[11.5px] font-semibold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-        >
-          {publishing ? (
-            <>
-              <Loader2 size={12} className="animate-spin" />
-              <span>Publishing…</span>
-            </>
-          ) : (
-            <>
-              <Rocket size={12} />
-              <span>{liveUrl ? 'Republish' : 'Publish'}</span>
-            </>
-          )}
-        </button>
       </div>
     </div>
   )
