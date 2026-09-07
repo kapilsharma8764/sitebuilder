@@ -23,46 +23,67 @@ npm run dev
 ```
 → **http://localhost:5200**
 
-*(5173 aur 8000 tumhare purane `2.websiteBuilder` ne le rakhe hain, isliye 5200 aur 8001 fix kiye hain.)*
+*(5173 aur 8000 tumhare purane `2.websiteBuilder` ne le rakhe hain, isliye 5200 aur 8001.)*
+
+---
+
+## Sabse pehle: account banao
+
+Ab app **login ke peeche** hai. Pehli baar:
+
+```
+http://localhost:5200 → "Create one" → apna email + password (8+ letters)
+```
+
+**Tumhari purani publish ki hui site (`sharma chogin classess`)** abhi kisi account se
+judi nahi hai. Login karte hi **"Your sites"** page pe ek line dikhegi —
+*"1 site on this computer is not attached to any account yet"* — uspe
+**"Add it to my account"** dabao, wo tumhare account me aa jayegi.
+
+*(Maine jaanbujh ke wo apne aap nahi jodi — kisi aur ka kaam pehle sign-up karne wale
+ko de dena galat ho sakta hai.)*
 
 ---
 
 ## Demo ka rasta
 
 ```
-1. http://localhost:5200 → "Create website"
-2. Website ka type → Product/Services
-3. B2B / B2C
-4. Business naam, LOGO FILE choose karo, slogan pe "Suggest one",
-   About pe "Write a first draft"
-5. Mobile (+WhatsApp tick), email, address, map link, timing
-6. Design chuno — 40 templates, tumhare type wale upar,
+1. Sign in
+2. "Create website"  (ya "Describe it instead" — ek line likho, design aa jayega)
+3. Website ka type → Product/Services
+4. B2B / B2C
+5. Business naam, LOGO FILE choose karo → "Trim edges" / "Make square"
+   slogan pe "Suggest one", About pe "Write a first draft"
+6. Mobile (+WhatsApp tick), email, address, map link, timing
+7. Design chuno — 40 templates, tumhare type wale upar,
    har card me tumhara naam aur asli photo
-7. Editor:
+8. Editor:
    • BAYE "Pages"   → Header / Footer (sab page pe) + pages + "+"
    • BAYE "Widgets" → widget ko UTHA KE canvas pe DROP karo
-   • Section pe drag handlese upar-neeche khiskao
-   • DAYE "Content" → text/photo badlo
-   • DAYE "Style"   → chaudai, spacing, rang, font
-   • Upar mobile/tablet/desktop view, undo/redo
-8. "Publish" → live link
-9. Live page pe contact form bharo
-10. "Enquiries" me wo message dikhega
+   • Section ko drag handle se upar-neeche khiskao
+   • DAYE "Content" → text / photo badlo
+   • DAYE "Style"   → Desktop / Tablet / Phone — teeno ke liye alag styling
+   • Upar mobile/tablet/desktop view, undo/redo, version history
+9. "Publish" → live link
+10. Live page pe contact form bharo
+11. "Enquiries" me wo message dikhega
 ```
 
 ---
 
-## Notebook ke hisaab se — sab ✅
+## Notebook + plan ke hisaab se
 
 | Feature | Status |
 |---|---|
+| Login / account | ✅ |
 | Create Website → type poochna | ✅ |
 | B2B / B2C | ✅ |
-| Company name, **logo upload**, square logo | ✅ |
+| Company name, **logo upload + crop** (trim / square) | ✅ |
 | Slogan + **Suggest** | ✅ |
 | About + **Suggest** | ✅ |
 | Product / Services | ✅ |
 | Contact: mobile+WhatsApp, alt, email, map, address, timing | ✅ |
+| "Describe it" wala doosra rasta | ✅ |
 | Templates | ✅ **40** |
 | Header/Footer FIX (`include header.php` wala) | ✅ |
 | Pages + Add Page | ✅ |
@@ -71,49 +92,44 @@ npm run dev
 | Google Map widget | ✅ |
 | WhatsApp button | ✅ |
 | **Chart / Graph** widget | ✅ |
-| Resize / Style / font | ✅ Style tab |
+| **Opening hours** widget | ✅ |
+| Resize / Style / font | ✅ |
+| **Har screen ke liye alag style** (desktop/tablet/phone) | ✅ |
+| Version history | ✅ |
 | Publish → live link | ✅ |
 | CRM (Enquiries) | ✅ |
 
----
+### Abhi bhi pending
 
-## Abhi bhi pending (saaf-saaf)
-
-| Kya | Kyun bacha |
+| Kya | Kyun |
 |---|---|
-| **Logo cropping** | Upload + resize chalta hai, crop tool nahi bana |
-| **Har screen ke liye alag style** | Style ek hi set hai — mobile pe alag padding nahi de sakte |
-| **Login / multiple users** | Abhi ek machine, ek user. Google login nahi laga |
-| **Payment / credits** | Bilkul nahi |
-| **Templates 40 se zyada** | System ready hai, naya template 3 line ka kaam |
+| **Payment / credits** | Bilkul nahi bana |
+| **Custom domain** | Abhi `/site/naam` par milta hai, apna domain nahi |
+| **Team — ek site pe kai log** | Account ban gaye, par site sirf banane wale ki hai |
+| **AI se poori site likhwana** | "Describe it" design match karta hai; asli AI ke liye key chahiye |
 
 ---
 
 ## Quality
 
 ```
-88 tests (client) + 6 (server)   sab pass
+110 tests (client) + 15 (server)   sab pass
 CI green — har push pe lint + test + build
 0 lint errors
 ```
 
 ## Jo asli bugs pakde aur theek kiye
 
-1. **Template chunne ke baad editor khaali khulta tha** — "No project selected". Purane
-   "project" system pe atka tha jise naya flow set hi nahi karta tha.
-2. **Drag & drop tha hi nahi** — sirf Layers list me tha. Ab widget utha ke canvas pe daal
-   sakte ho, aur section ko handle se khiska sakte ho.
-3. **Hero me photo nahi tha** — dashed box me "Preview" likha aata tha. Yahi sabse zyada
-   sasta dikhata tha. Ab asli photo + naya "photo across the top" layout.
-4. **Har feature card pe wahi lightning bolt** — icon map me 12 the, templates 40+ maangte
-   the. Ab poora map aur panel me dropdown.
+1. **Template chunne ke baad editor khaali khulta tha** — "No project selected".
+2. **Drag & drop tha hi nahi** — sirf Layers list me tha.
+3. **Hero me photo nahi tha** — dashed box me "Preview" likha aata tha.
+4. **Har feature card pe wahi lightning bolt** — icon map me 12, templates 40+ maangte the.
 5. **Published page pe icon ki jagah sirf ek letter** — scissors ki jagah "S".
-6. **6 widgets publish me ja hi nahi rahe the** — About text, photos, gallery, video,
-   divider, banner.
+6. **6 widgets publish me ja hi nahi rahe the** — About, photos, gallery, video, divider, banner.
 7. **Header/footer publish me missing tha.**
-8. **Logo upload hota tha par header me kabhi nahi dikhta tha.**
-9. **Contact form kuch karta hi nahi tha** (`onsubmit="return false"`).
-10. **Ek hi millisecond me do widget → same ID.**
+8. **Contact form kuch karta hi nahi tha** (`onsubmit="return false"`).
+9. **Ek hi millisecond me do widget → same ID.**
+10. **Opening hours me galat din highlight hota** — hafta Monday se, `getDay()` Sunday se.
 
 ---
 
@@ -125,11 +141,3 @@ CI green — har push pe lint + test + build
 - **Legally saaf** — sab MIT/Unsplash. Colorlib, Wix, OpenTailwind, Cruip license padh ke reject
 
 Detail: `RESEARCH-TEMPLATES-SOURCES.md`
-
----
-
-## Ek baat
-
-Main apne aap ghanton tak nahi chal sakta — tumhare message pe hi chalta hoon. Par jo bana
-hai wo **poora chalta hua aur tested** hai, aur `publish-flow.test.ts` shuru se aakhir tak
-ka rasta apne aap check karta hai.
