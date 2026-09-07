@@ -70,6 +70,10 @@ export function Canvas() {
   useGoogleFonts([resolved.fontSans, resolved.fontDisplay, resolved.fontMono])
 
   const maxWidth = viewport === 'desktop' ? '880px' : viewport === 'tablet' ? '768px' : '375px'
+  // Inside the tablet and phone frames the wrapper has no width of its own, so
+  // `width: 100%` collapses to whatever the content happens to need and the
+  // page spills out of the frame. Those two get the device width outright.
+  const canvasWidth = viewport === 'desktop' ? '100%' : maxWidth
 
   const isEmpty = blocks.length === 0 && header.length === 0 && footer.length === 0
   if (isEmpty) {
@@ -106,7 +110,7 @@ export function Canvas() {
   const canvasContent = (
     <div
       className="@container border rounded-xl min-h-[400px] relative z-[1] overflow-hidden transition-all duration-300"
-      style={{ width: '100%', maxWidth, ...cssVars, color: 'var(--color-text-0)', backgroundColor: 'var(--color-bg-1)', borderColor: 'var(--color-border-default)' } as React.CSSProperties}
+      style={{ width: canvasWidth, maxWidth, ...cssVars, color: 'var(--color-text-0)', backgroundColor: 'var(--color-bg-1)', borderColor: 'var(--color-border-default)' } as React.CSSProperties}
       onClick={(e) => {
         if (e.target === e.currentTarget) selectBlock(null)
       }}

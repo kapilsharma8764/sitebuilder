@@ -187,7 +187,7 @@ function renderNavbar(block: BlockConfig): string {
 ${navLinks}
     </div>
     <div class="flex items-center gap-3">
-      <button class="px-4 py-2 rounded-lg bg-brand text-black text-[13px] font-semibold hover:bg-brand-dim transition-colors">${ctaText}</button>
+      <button class="px-4 py-2 rounded-lg bg-brand text-white text-[13px] font-semibold hover:bg-brand-dim transition-colors">${ctaText}</button>
       <button class="lg:hidden w-9 h-9 rounded-lg border border-border-default flex items-center justify-center text-text-2 hover:text-text-0 hover:bg-bg-3 transition-colors">
         ${SVG_MENU}
       </button>
@@ -520,13 +520,13 @@ function renderPricingSimple(block: BlockConfig): string {
         ? 'bg-bg-2 border-2 border-brand'
         : 'bg-bg-2 border border-border-default hover:border-border-hover'
       const featuredBadge = tier.featured
-        ? `          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand text-black text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+        ? `          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
             ${SVG_STAR_10}
             Recommended
           </div>`
         : ''
       const btnClass = tier.featured
-        ? 'w-full py-2.5 rounded-lg text-sm font-semibold transition-all bg-brand text-black hover:bg-brand-dim'
+        ? 'w-full py-2.5 rounded-lg text-sm font-semibold transition-all bg-brand text-white hover:bg-brand-dim'
         : 'w-full py-2.5 rounded-lg text-sm font-semibold transition-all bg-bg-3 text-text-0 border border-border-default hover:bg-bg-4 hover:border-border-hover'
 
       const features = tier.features
@@ -662,7 +662,7 @@ function renderCtaSimple(block: BlockConfig): string {
       <div class="relative z-10">
         <h2 class="text-2xl md:text-3xl font-bold tracking-tight mb-3">${headline}</h2>
 ${subHtml}
-        ${renderLink(buttonText, buttonUrl, 'px-8 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all inline-flex items-center gap-2')}
+        ${renderLink(buttonText, buttonUrl, 'px-8 py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all inline-flex items-center gap-2')}
       </div>
   </section>`
 }
@@ -684,7 +684,7 @@ function renderCtaSplit(block: BlockConfig): string {
           <h2 class="text-xl md:text-2xl font-bold tracking-tight mb-1">${headline}</h2>
 ${subHtml}
         </div>
-        ${renderLink(buttonText, buttonUrl, 'relative z-10 px-6 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all shrink-0 inline-flex items-center gap-2')}
+        ${renderLink(buttonText, buttonUrl, 'relative z-10 px-6 py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all shrink-0 inline-flex items-center gap-2')}
       </div>
   </section>`
 }
@@ -1128,7 +1128,7 @@ ${subtitleHtml}
             <textarea id="enq-message" name="message" rows="4" placeholder="How can we help?" class="w-full px-3 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 resize-y transition-colors"></textarea>
           </div>
           <p data-enquiry-status class="text-[12.5px] text-text-2" hidden></p>
-          <button type="submit" class="w-full py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all flex items-center justify-center gap-2">
+          <button type="submit" class="w-full py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all flex items-center justify-center gap-2">
             ${SVG_SEND}
             Send Message
           </button>
@@ -1170,7 +1170,7 @@ function renderNewsletter(block: BlockConfig): string {
         <p class="text-text-2 text-sm mb-6">${subtitle}</p>
         <form onsubmit="return false" class="flex gap-2 max-w-sm mx-auto">
           <input type="email" placeholder="you@example.com" class="flex-1 px-4 py-2.5 rounded-lg border border-border-default bg-bg-2 text-text-0 text-[13px] outline-none focus:border-brand placeholder:text-text-3 transition-colors" />
-          <button type="submit" class="px-5 py-2.5 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all shrink-0">${buttonText}</button>
+          <button type="submit" class="px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all shrink-0">${buttonText}</button>
         </form>
         <p class="text-[11px] text-text-3 mt-3">${proofText}</p>
       </div>

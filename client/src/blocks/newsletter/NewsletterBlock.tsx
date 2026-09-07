@@ -33,7 +33,7 @@ export function NewsletterBlock({ block }: { block: BlockConfig }) {
           />
           <button
             onClick={() => toast("You're subscribed!")}
-            className="px-5 py-2.5 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all shrink-0"
+            className="px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all shrink-0"
           >
             {props.buttonText || 'Subscribe'}
           </button>

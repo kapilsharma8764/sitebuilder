@@ -59,7 +59,7 @@ function NavbarDefault({ props }: { props: NavbarProps }) {
 
       {/* CTA + mobile menu */}
       <div className="flex items-center gap-3">
-        <button className="px-4 py-2 rounded-lg bg-brand text-black text-[13px] font-semibold hover:bg-brand-dim transition-colors">
+        <button className="px-4 py-2 rounded-lg bg-brand text-white text-[13px] font-semibold hover:bg-brand-dim transition-colors">
           {ctaText}
         </button>
         <button className="@2xl:hidden w-9 h-9 rounded-lg border border-border-default flex items-center justify-center text-text-2 hover:text-text-0 hover:bg-bg-3 transition-colors">
@@ -97,7 +97,7 @@ function NavbarCentered({ props }: { props: NavbarProps }) {
             {link}
           </span>
         ))}
-        <button className="px-4 py-2 rounded-lg bg-brand text-black text-[13px] font-semibold hover:bg-brand-dim transition-colors ml-2">
+        <button className="px-4 py-2 rounded-lg bg-brand text-white text-[13px] font-semibold hover:bg-brand-dim transition-colors ml-2">
           {ctaText}
         </button>
       </div>

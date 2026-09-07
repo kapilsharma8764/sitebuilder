@@ -96,21 +96,40 @@ function ImageControl({ value, onChange }: { value: unknown; onChange: (v: strin
 }
 
 function ColorControl({ value, onChange }: { value: unknown; onChange: (v: string) => void }) {
-  const color = typeof value === 'string' && value ? value : '#000000'
+  const color = typeof value === 'string' ? value : ''
+  const valid = /^#[0-9a-fA-F]{6}$/.test(color)
+
   return (
     <div className="flex items-center gap-1.5">
       <input
         type="color"
-        value={/^#[0-9a-fA-F]{6}$/.test(color) ? color : '#000000'}
+        // A colour input cannot show "nothing", so an unset field falls back
+        // to black for the swatch only — the text box stays empty, and no
+        // value is stored until the user actually picks one.
+        value={valid ? color : '#000000'}
         onChange={(e) => onChange(e.target.value)}
-        className="w-7 h-7 shrink-0 rounded-md border border-border-default bg-bg-2 cursor-pointer p-0.5"
+        aria-label="Pick a colour"
+        className={`w-7 h-7 shrink-0 rounded-md border cursor-pointer p-0.5 bg-bg-2 ${
+          valid ? 'border-border-default' : 'border-dashed border-border-hover'
+        }`}
       />
       <input
         type="text"
         value={color}
+        placeholder="Design colour"
         onChange={(e) => onChange(e.target.value)}
         className={`${inputClass} font-mono`}
       />
+      {color && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label="Clear colour"
+          className="px-1.5 rounded-md text-text-3 hover:text-text-0 transition-colors"
+        >
+          <X size={12} />
+        </button>
+      )}
     </div>
   )
 }

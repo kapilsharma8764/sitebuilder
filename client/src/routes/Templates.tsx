@@ -137,12 +137,23 @@ export function Templates() {
               {visible.map(({ meta, config, suits }) => {
                 const isSelected = selected === meta.id
                 return (
-                  <button
+                  // A div with a button role rather than a real <button>: the
+                  // card contains a rendered site, and that site has buttons of
+                  // its own. Nested buttons are invalid HTML and break keyboard
+                  // navigation.
+                  <div
                     key={meta.id}
-                    type="button"
-                    onClick={() => setSelected(meta.id)}
+                    role="button"
+                    tabIndex={0}
                     aria-pressed={isSelected}
-                    className={`group text-left rounded-2xl border overflow-hidden transition-all ${
+                    onClick={() => setSelected(meta.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        setSelected(meta.id)
+                      }
+                    }}
+                    className={`group text-left rounded-2xl border overflow-hidden transition-all cursor-pointer ${
                       isSelected
                         ? 'border-brand shadow-lg shadow-brand-glow'
                         : 'border-border-default hover:border-border-hover'
@@ -174,7 +185,7 @@ export function Templates() {
                         {meta.description}
                       </p>
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>

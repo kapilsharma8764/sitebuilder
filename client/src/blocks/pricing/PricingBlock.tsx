@@ -68,7 +68,7 @@ function PricingSimple({ props }: { props: PricingProps }) {
             }`}
           >
             {tier.featured && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand text-black text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                 <Star size={10} fill="currentColor" />
                 Recommended
               </div>
@@ -100,7 +100,7 @@ function PricingSimple({ props }: { props: PricingProps }) {
             <button
               className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all ${
                 tier.featured
-                  ? 'bg-brand text-black hover:bg-brand-dim hover:accent-glow-lg'
+                  ? 'bg-brand text-white hover:bg-brand-dim hover:accent-glow-lg'
                   : 'bg-bg-3 text-text-0 border border-border-default hover:bg-bg-4 hover:border-border-hover'
               }`}
             >

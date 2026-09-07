@@ -31,7 +31,11 @@ export function SitePreview({
   return (
     <div className="absolute inset-0 overflow-hidden bg-bg-0">
       <div
-        className="@container absolute top-0 left-0 origin-top-left pointer-events-none select-none"
+        // `scroll-revealed` because the widgets fade their content in as it
+        // scrolls into view, and a still thumbnail never scrolls — without it
+        // every heading and button sits at opacity zero and the card looks
+        // blank.
+        className="@container scroll-revealed absolute top-0 left-0 origin-top-left pointer-events-none select-none"
         style={{
           width: `${width}px`,
           transform: `scale(${scale})`,

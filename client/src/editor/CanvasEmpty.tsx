@@ -31,7 +31,7 @@ export function CanvasEmpty() {
       </p>
       <button
         onClick={handleAddBlock}
-        className="px-3.5 py-1.5 rounded-md bg-brand text-black text-[12.5px] font-semibold border border-brand hover:bg-brand-dim transition-colors flex items-center gap-1.5"
+        className="px-3.5 py-1.5 rounded-md bg-brand text-white text-[12.5px] font-semibold border border-brand hover:bg-brand-dim transition-colors flex items-center gap-1.5"
       >
         <Plus size={14} />
         Add Hero Block

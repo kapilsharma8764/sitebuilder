@@ -23,7 +23,7 @@ function CtaSimple({ props }: { props: CtaProps }) {
           </p>
         )}
         <div className="reveal-fade-up reveal-d3">
-          <button className="px-8 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all hover:accent-glow-xl inline-flex items-center gap-2">
+          <button className="px-8 py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all hover:accent-glow-xl inline-flex items-center gap-2">
             {props.buttonText}
             <ArrowRight size={16} />
           </button>
@@ -46,7 +46,7 @@ function CtaSplit({ props }: { props: CtaProps }) {
             <p className="text-text-2 text-sm">{props.subheadline}</p>
           )}
         </div>
-        <button className="relative z-10 px-6 py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all shrink-0 flex items-center gap-2">
+        <button className="relative z-10 px-6 py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all shrink-0 flex items-center gap-2">
           {props.buttonText}
           <ArrowRight size={16} />
         </button>

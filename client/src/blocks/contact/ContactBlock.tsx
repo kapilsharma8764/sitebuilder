@@ -51,7 +51,7 @@ export function ContactBlock({ block }: { block: BlockConfig }) {
           </div>
           <button
             onClick={() => toast("Message sent! We'll be in touch soon.")}
-            className="w-full py-3 rounded-lg bg-brand text-black text-sm font-semibold hover:bg-brand-dim transition-all hover:accent-glow-lg flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-dim transition-all hover:accent-glow-lg flex items-center justify-center gap-2"
           >
             <Send size={14} />
             Send Message
